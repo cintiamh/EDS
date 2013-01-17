@@ -19,7 +19,7 @@ knowledge not just with pure JavaScript, but also adding existing open source li
 final products.  
 These projects will not focus on audio or art quality, but in playability and performance in an online and plugin-less
 environment.  
-All the source code will be available from my GitHub account page (https://github.com/cintiamh/EDS)  
+All the source code will be available at my GitHub account page (https://github.com/cintiamh/EDS)  
 And all pieces will be published and available to be played at my portfolio (http://portfolio.pandajapa.com/) by the
 end of this semester.  
 
