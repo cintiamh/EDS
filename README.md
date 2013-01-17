@@ -25,7 +25,7 @@ end of this semester.
 
 **Classic games titles suggestion:**
 * Minesweeper (starting with pure canvas and JavaScript)
-* Space Invaders (animation and simple particles)
+* Space Invaders (animation and simple particles - KineticJS)
 * Asteroids (with multiplayer - Node.js)
 * Tetris 3D (with 3D rendering - Three.js)
 
