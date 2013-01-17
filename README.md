@@ -16,8 +16,8 @@ These projects will not focus on audio or art quality, but in playability and pe
 All the source code will be available from my GitHub account page (https://github.com/cintiamh/EDS)
 And all pieces will be published and available to be played at my portfolio (http://portfolio.pandajapa.com/) by the end of this semester.
 
-**Classic games title suggestion:**
-* Minesweeper (starting pure canvas and JavaScript)
+**Classic games titles suggestion:**
+* Minesweeper (starting with pure canvas and JavaScript)
 * Space Invaders (animation and simple particles)
 * Asteroids (with multiplayer - Node.js)
 * Tetris 3D (with 3D rendering - Three.js)
