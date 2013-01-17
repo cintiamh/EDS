@@ -4,7 +4,8 @@ Entertainment Design Studio (53-723)
 Objective and Summary
 ---------------------
 
-The objective of this semester project is to develop several independent HTML5 game prototypes in order to learn the technology and the existing libraries that exist at this time.
+The objective of this semester project is to develop several independent HTML5 game prototypes in order to learn the 
+technology and the existing libraries up to this time.
 
 The Plan
 --------
