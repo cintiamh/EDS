@@ -45,12 +45,29 @@ table {
     border-spacing: 0;
 }
 
+/* Page Layout */
+
 body {
     font-family: Verdana;
-    color: blue ;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: Georgia;
+    line-height: 2;
+    color: #FF3333;
+}
+
+h1 {
+    font-size: 300%;
+}
+
+#wrapper {
+    width: 900px;
+    display: block;
+    position: relative;
+    margin: 0 auto;
 }
 
 #game {
     border: 1px solid #000000;
-    background-color: #333333;
 }
