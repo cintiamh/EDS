@@ -2,7 +2,7 @@
 (function() {
   var canvas, context;
 
-  canvas = document.getElementById("game");
+  canvas = $('#game').val();
 
   context = canvas.getContext("2d");
 
