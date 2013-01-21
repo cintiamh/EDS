@@ -62,12 +62,12 @@ h1 {
 }
 
 #wrapper {
-    width: 900px;
+    width: 1024px;
     display: block;
     position: relative;
     margin: 0 auto;
 }
 
 #game {
-    border: 1px solid #000000;
+    border: 1px solid #7B7B7B;
 }
