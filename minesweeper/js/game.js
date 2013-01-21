@@ -187,15 +187,17 @@
   };
 
   putFlag = function(x, y) {
-    var index;
+    var flag, temp, _i, _len;
     if (findFlagInList(x, y)) {
       console.log("remove flag");
-      index = flagsList.indexOf({
-        x: x,
-        y: y
-      });
-      console.log(index + ", x: " + x + ", y: " + y);
-      flagsList.splice(index, 1);
+      temp = [];
+      for (_i = 0, _len = flagsList.length; _i < _len; _i++) {
+        flag = flagsList[_i];
+        if (!(flag.x === x && flag.y === y)) {
+          temp.push(flag);
+        }
+      }
+      flagsList = temp;
       drawSquareBack(x, y);
       drawUpButton(x, y);
     } else {

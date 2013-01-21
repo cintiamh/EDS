@@ -156,9 +156,11 @@ generateBombs = (x, y) ->
 putFlag = (x, y) ->
   if findFlagInList(x, y)
     console.log("remove flag")
-    index = flagsList.indexOf({x: x, y: y})
-    console.log(index + ", x: " + x + ", y: " + y)
-    flagsList.splice(index, 1)
+    temp = []
+    for flag in flagsList
+      unless flag.x == x and flag.y == y
+        temp.push(flag)
+    flagsList = temp
     drawSquareBack(x, y)
     drawUpButton(x, y)
   else
