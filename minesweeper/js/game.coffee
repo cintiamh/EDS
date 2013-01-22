@@ -34,6 +34,17 @@ flagsList = []
 flippedList = []
 numColors = ["#0000FF", "#008040", "#FF0000", "#000080", "#800040", "#408080", "#000000", "#808080"]
 mousePos = {}
+tileNeighbors = (inX, inY) ->
+  [
+    { x: inX - 1, y: inY - 1}
+    { x: inX - 1, y: inY}
+    { x: inX - 1, y: inY + 1}
+    { x: inX, y: inY - 1}
+    { x: inX, y: inY + 1}
+    { x: inX + 1, y: inY - 1}
+    { x: inX + 1, y: inY}
+    { x: inX + 1, y: inY + 1}
+  ]
 
 getMousePos = (canvas, evt) ->
   rect = canvas.getBoundingClientRect()
@@ -59,7 +70,7 @@ canvas.addEventListener(
     evt.preventDefault()
     mousePos = getMousePos(canvas, evt)
     #drawFlag(mousePos.x, mousePos.y)
-    putFlag(mousePos.x, mousePos.y)
+    putFlag mousePos.x, mousePos.y
     return false
   false
 )
@@ -83,25 +94,15 @@ discoverTiles = (x, y) ->
     count = countBombs(x, y)
     flippedList.push {x: x, y: y, v: count}
     if count == 0
-      if y - 1 >= 0
-        discoverTiles(x, y - 1)
-      if y + 1 < levels[level].y
-        discoverTiles(x, y + 1)
-      if x - 1 >= 0
-        discoverTiles(x - 1, y)
-        if y - 1 >= 0
-          discoverTiles(x - 1, y - 1)
-        if y + 1 < levels[level].y
-          discoverTiles(x - 1, y + 1)
-      if x + 1 < levels[level].x
-        discoverTiles(x + 1, y)
-        if y - 1 >= 0
-          discoverTiles(x + 1, y - 1)
-        if y + 1 < levels[level].y
-          discoverTiles(x + 1, y + 1)
+      discoverNeighbors(x, y)
     else
       drawCharacter(x, y, count, numColors[count - 1])
 
+
+discoverNeighbors = (x, y) ->
+  tileNeighbors(x, y).map (tile) ->
+    if 0 <= tile.x < levels[level].x and 0 <= tile.y < levels[level].y
+      discoverTiles(tile.x, tile.y)
 
 countBombs = (x, y) ->
   count = 0
