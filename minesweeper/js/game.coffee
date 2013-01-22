@@ -3,8 +3,8 @@ BLOCK_SIZE = 30
 REFRESH_RATE = 120 # ms
 
 # global variables
-canvas = document.getElementById('game') #$('#game').val()
-context = canvas.getContext("2d")
+canvas = document.getElementById('game')
+context = canvas.getContext "2d"
 running = false
 explode = false
 time = 0
@@ -107,30 +107,11 @@ discoverNeighbors = (x, y) ->
 countBombs = (x, y) ->
   count = 0
   # count the number of neighbor bombs
-  if x - 1 >= 0 and y - 1 >= 0
-    if findItemInList(bombsList, x - 1, y - 1)
-      count++
-  if y - 1 >= 0
-    if findItemInList(bombsList, x, y - 1)
-      count++
-  if x + 1 < levels[level].x and y - 1 >= 0
-    if findItemInList(bombsList, x + 1, y - 1)
-      count++
-  if x - 1 >= 0
-    if findItemInList(bombsList, x - 1, y)
-      count++
-  if x + 1 < levels[level].x
-    if findItemInList(bombsList, x + 1, y)
-      count++
-  if x - 1 >= 0 and y + 1 < levels[level].y
-    if findItemInList(bombsList, x - 1, y + 1)
-      count++
-  if y + 1 < levels[level].y
-    if findItemInList(bombsList, x, y + 1)
-      count++
-  if x + 1 < levels[level].x and y + 1 < levels[level].y
-    if findItemInList(bombsList, x + 1, y + 1)
-      count++
+  tileNeighbors(x, y).map (tile) ->
+    if 0 <= tile.x < levels[level].x and 0 <= tile.y < levels[level].y
+      if findItemInList(bombsList, tile.x, tile.y)
+        count++
+
   return count
 
 drawFlag = (x, y) ->

@@ -148,46 +148,14 @@
   countBombs = function(x, y) {
     var count;
     count = 0;
-    if (x - 1 >= 0 && y - 1 >= 0) {
-      if (findItemInList(bombsList, x - 1, y - 1)) {
-        count++;
+    tileNeighbors(x, y).map(function(tile) {
+      var _ref, _ref1;
+      if ((0 <= (_ref = tile.x) && _ref < levels[level].x) && (0 <= (_ref1 = tile.y) && _ref1 < levels[level].y)) {
+        if (findItemInList(bombsList, tile.x, tile.y)) {
+          return count++;
+        }
       }
-    }
-    if (y - 1 >= 0) {
-      if (findItemInList(bombsList, x, y - 1)) {
-        count++;
-      }
-    }
-    if (x + 1 < levels[level].x && y - 1 >= 0) {
-      if (findItemInList(bombsList, x + 1, y - 1)) {
-        count++;
-      }
-    }
-    if (x - 1 >= 0) {
-      if (findItemInList(bombsList, x - 1, y)) {
-        count++;
-      }
-    }
-    if (x + 1 < levels[level].x) {
-      if (findItemInList(bombsList, x + 1, y)) {
-        count++;
-      }
-    }
-    if (x - 1 >= 0 && y + 1 < levels[level].y) {
-      if (findItemInList(bombsList, x - 1, y + 1)) {
-        count++;
-      }
-    }
-    if (y + 1 < levels[level].y) {
-      if (findItemInList(bombsList, x, y + 1)) {
-        count++;
-      }
-    }
-    if (x + 1 < levels[level].x && y + 1 < levels[level].y) {
-      if (findItemInList(bombsList, x + 1, y + 1)) {
-        count++;
-      }
-    }
+    });
     return count;
   };
 
