@@ -30,10 +30,9 @@ height = levels[level].y * BLOCK_SIZE
 bombs = levels[level].bombs
 bombsList = []
 flagsList = []
-showedList = []
+flippedList = []
 numColors = ["#0000FF", "#008040", "#FF0000", "#000080", "#800040", "#408080", "#000000", "#808080"]
 mousePos = {}
-grid = []
 
 getMousePos = (canvas, evt) ->
   rect = canvas.getBoundingClientRect()
@@ -66,11 +65,73 @@ canvas.addEventListener(
 
 # function called when a square is clicked.
 flipPiece = (x, y) ->
-  drawDownButton(x, y)
-  drawCharacter(x, y, "1", "#0000FF")
   unless running
     start()
     generateBombs(x, y)
+  unless (findFlagInList(x, y))
+    if (findBombInList(x, y))
+      # bomb explodes and game is over
+      console.log("found bomb!")
+      drawDownButton(x, y)
+      drawCharacter(x, y, "B", "#000000")
+    else
+      console.log("no bombs")
+      discoverTiles(x, y)
+
+discoverTiles = (x, y) ->
+  unless findItemInList(flippedList, x, y)
+    drawDownButton(x, y)
+    count = countBombs(x, y)
+    flippedList.push {x: x, y: y, v: count}
+    if count == 0
+      if y - 1 >= 0
+        discoverTiles(x, y - 1)
+      if y + 1 < levels[level].y
+        discoverTiles(x, y + 1)
+      if x - 1 >= 0
+        discoverTiles(x - 1, y)
+        if y - 1 >= 0
+          discoverTiles(x - 1, y - 1)
+        if y + 1 < levels[level].y
+          discoverTiles(x - 1, y + 1)
+      if x + 1 < levels[level].x
+        discoverTiles(x + 1, y)
+        if y - 1 >= 0
+          discoverTiles(x + 1, y - 1)
+        if y + 1 < levels[level].y
+          discoverTiles(x + 1, y + 1)
+    else
+      drawCharacter(x, y, count, numColors[count - 1])
+
+
+countBombs = (x, y) ->
+  count = 0
+  # count the number of neighbor bombs
+  if x - 1 >= 0 and y - 1 >= 0
+    if findBombInList(x - 1, y - 1)
+      count++
+  if y - 1 >= 0
+    if findBombInList(x, y - 1)
+      count++
+  if x + 1 < levels[level].x and y - 1 >= 0
+    if findBombInList(x + 1, y - 1)
+      count++
+  if x - 1 >= 0
+    if findBombInList(x - 1, y)
+      count++
+  if x + 1 < levels[level].x
+    if findBombInList(x + 1, y)
+      count++
+  if x - 1 >= 0 and y + 1 < levels[level].y
+    if findBombInList(x - 1, y + 1)
+      count++
+  if y + 1 < levels[level].y
+    if findBombInList(x, y + 1)
+      count++
+  if x + 1 < levels[level].x and y + 1 < levels[level].y
+    if findBombInList(x + 1, y + 1)
+      count++
+  return count
 
 drawFlag = (x, y) ->
 
@@ -171,6 +232,12 @@ putFlag = (x, y) ->
     })
     drawCharacter(x, y, "F", "#FF0000")
   console.log flagsList
+
+findItemInList = (list, x, y) ->
+  for item in list
+    if item.x == x and item.y == y
+      return true
+  return false
 
 findFlagInList = (x, y) ->
   for flag in flagsList
