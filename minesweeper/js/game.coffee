@@ -6,7 +6,7 @@ REFRESH_RATE = 120 # ms
 canvas = document.getElementById('game')
 context = canvas.getContext "2d"
 running = false
-explode = false
+exploded = false
 time = 0
 level = 0
 levels = [
@@ -46,90 +46,7 @@ tileNeighbors = (inX, inY) ->
     { x: inX + 1, y: inY + 1}
   ]
 
-getMousePos = (canvas, evt) ->
-  rect = canvas.getBoundingClientRect()
-  return {
-    x: Math.floor((evt.clientX - rect.left) / BLOCK_SIZE)
-    y: Math.floor((evt.clientY - rect.top) / BLOCK_SIZE)
-  }
-
-# Event listeners for the mouse clicks.
-canvas.addEventListener(
-  'click'
-  (evt) ->
-    evt.preventDefault()
-    mousePos = getMousePos(canvas, evt)
-    flipPiece(mousePos.x, mousePos.y)
-    return false
-  false
-)
-
-canvas.addEventListener(
-  'contextmenu'
-  (evt) ->
-    evt.preventDefault()
-    mousePos = getMousePos(canvas, evt)
-    #drawFlag(mousePos.x, mousePos.y)
-    putFlag mousePos.x, mousePos.y
-    return false
-  false
-)
-
-# function called when a square is clicked.
-flipPiece = (x, y) ->
-  unless running
-    start()
-    generateBombs(x, y)
-  unless (findItemInList(flagsList, x, y))
-    if (findItemInList(bombsList, x, y))
-      # bomb explodes and game is over
-      drawDownButton(x, y)
-      drawCharacter(x, y, "B", "#000000")
-    else
-      discoverTiles(x, y)
-
-discoverTiles = (x, y) ->
-  unless findItemInList(flippedList, x, y)
-    drawDownButton(x, y)
-    count = countBombs(x, y)
-    flippedList.push {x: x, y: y, v: count}
-    if count == 0
-      discoverNeighbors(x, y)
-    else
-      drawCharacter(x, y, count, numColors[count - 1])
-
-
-discoverNeighbors = (x, y) ->
-  tileNeighbors(x, y).map (tile) ->
-    if 0 <= tile.x < levels[level].x and 0 <= tile.y < levels[level].y
-      discoverTiles(tile.x, tile.y)
-
-countBombs = (x, y) ->
-  count = 0
-  # count the number of neighbor bombs
-  tileNeighbors(x, y).map (tile) ->
-    if 0 <= tile.x < levels[level].x and 0 <= tile.y < levels[level].y
-      if findItemInList(bombsList, tile.x, tile.y)
-        count++
-
-  return count
-
-drawFlag = (x, y) ->
-
-  unless running
-    start()
-    generateBombs(x, y)
-
-# When the player chooses a new levels, sets up all the variables for a new game.
-setNewLevel = (l) ->
-  if l < levels.length
-    level = l
-    width = levels[level].x * BLOCK_SIZE
-    height = levels[level].y * BLOCK_SIZE
-    bombs = levels[level].bombs
-    canvas.width = width
-    canvas.height = height
-
+# Draw functions
 drawLine = (startX, startY, endX, endY, color, lineWidth) ->
   context.beginPath()
   context.moveTo(startX, startY)
@@ -181,22 +98,84 @@ drawTable = ->
     for posy in [0..levels[level].y]
       drawUpButton(posx, posy)
 
-# recreates a new list of bombs according to the level.
-generateBombs = (x, y) ->
-  bombsList = []
-  bombs = 0
-  while bombs < levels[level].bombs
-    newX = Math.floor(Math.random() * levels[level].x)
-    newY = Math.floor(Math.random() * levels[level].y)
-    # unless the new coordinates are new and are not the first click pos, add new bomb to list
-    unless findItemInList(bombsList, newX, newY) or (newX == x and newY == y)
-      bombsList.push({x: newX, y: newY})
-      bombs++
+# Mouse events
+getMousePos = (canvas, evt) ->
+  rect = canvas.getBoundingClientRect()
+  return {
+  x: Math.floor((evt.clientX - rect.left) / BLOCK_SIZE)
+  y: Math.floor((evt.clientY - rect.top) / BLOCK_SIZE)
+  }
 
+# Event listeners for the mouse clicks.
+canvas.addEventListener(
+  'click'
+  (evt) ->
+    evt.preventDefault()
+    mousePos = getMousePos(canvas, evt)
+    flipPiece(mousePos.x, mousePos.y)
+    return false
+  false
+)
 
+canvas.addEventListener(
+  'contextmenu'
+  (evt) ->
+    evt.preventDefault()
+    mousePos = getMousePos(canvas, evt)
+    putFlag mousePos.x, mousePos.y
+    return false
+  false
+)
+
+# function called when a square is left clicked.
+flipPiece = (x, y) ->
+  unless running
+    start()
+    generateBombs(x, y)
+  unless (findItemInList(flagsList, x, y)) or exploded
+    if (findItemInList(bombsList, x, y))
+      # bomb explodes and game is over
+      explodeBomb()
+    else
+      discoverTiles(x, y)
+
+# Verifies the tile s neighbors
+discoverTiles = (x, y) ->
+  unless findItemInList(flippedList, x, y) or findItemInList(bombsList, x, y)
+    drawDownButton(x, y)
+    count = countBombs(x, y)
+    flippedList.push {x: x, y: y}
+    if count == 0
+      discoverNeighbors(x, y)
+    else
+      drawCharacter(x, y, count, numColors[count - 1])
+
+# Sets the end of game and draws all bombs
+explodeBomb = ->
+  exploded = true
+  bombsList.map (bomb) ->
+    drawDownButton(bomb.x, bomb.y)
+    drawCharacter(bomb.x, bomb.y, "B", "#000000")
+
+# Recursively visits all neighbors to check if it s empty or not
+discoverNeighbors = (x, y) ->
+  tileNeighbors(x, y).map (tile) ->
+    if 0 <= tile.x < levels[level].x and 0 <= tile.y < levels[level].y
+      discoverTiles(tile.x, tile.y)
+
+# Counts the number of neighbors that are bombs
+countBombs = (x, y) ->
+  count = 0
+  # count the number of neighbor bombs
+  tileNeighbors(x, y).map (tile) ->
+    if 0 <= tile.x < levels[level].x and 0 <= tile.y < levels[level].y
+      if findItemInList(bombsList, tile.x, tile.y)
+        count++
+  return count
+
+# To right click event, put a flag in place
 putFlag = (x, y) ->
   unless findItemInList(flippedList, x, y)
-    #if findFlagInList(x, y)
     if findItemInList(flagsList, x, y)
       temp = []
       for flag in flagsList
@@ -211,6 +190,28 @@ putFlag = (x, y) ->
         y: y
       })
       drawCharacter(x, y, "F", "#FF0000")
+
+# When the player chooses a new levels, sets up all the variables for a new game.
+setNewLevel = (l) ->
+  if l < levels.length
+    level = l
+    width = levels[level].x * BLOCK_SIZE
+    height = levels[level].y * BLOCK_SIZE
+    bombs = levels[level].bombs
+    canvas.width = width
+    canvas.height = height
+
+# recreates a new list of bombs according to the level.
+generateBombs = (x, y) ->
+  bombsList = []
+  bombs = 0
+  while bombs < levels[level].bombs
+    newX = Math.floor(Math.random() * levels[level].x)
+    newY = Math.floor(Math.random() * levels[level].y)
+    # unless the new coordinates are new and are not the first click pos, add new bomb to list
+    unless findItemInList(bombsList, newX, newY) or (newX == x and newY == y)
+      bombsList.push({x: newX, y: newY})
+      bombs++
 
 findItemInList = (list, x, y) ->
   for item in list
