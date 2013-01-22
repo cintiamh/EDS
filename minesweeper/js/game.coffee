@@ -6,6 +6,7 @@ REFRESH_RATE = 120 # ms
 canvas = document.getElementById('game') #$('#game').val()
 context = canvas.getContext("2d")
 running = false
+explode = false
 time = 0
 level = 0
 levels = [
@@ -68,14 +69,12 @@ flipPiece = (x, y) ->
   unless running
     start()
     generateBombs(x, y)
-  unless (findFlagInList(x, y))
-    if (findBombInList(x, y))
+  unless (findItemInList(flagsList, x, y))
+    if (findItemInList(bombsList, x, y))
       # bomb explodes and game is over
-      console.log("found bomb!")
       drawDownButton(x, y)
       drawCharacter(x, y, "B", "#000000")
     else
-      console.log("no bombs")
       discoverTiles(x, y)
 
 discoverTiles = (x, y) ->
@@ -108,28 +107,28 @@ countBombs = (x, y) ->
   count = 0
   # count the number of neighbor bombs
   if x - 1 >= 0 and y - 1 >= 0
-    if findBombInList(x - 1, y - 1)
+    if findItemInList(bombsList, x - 1, y - 1)
       count++
   if y - 1 >= 0
-    if findBombInList(x, y - 1)
+    if findItemInList(bombsList, x, y - 1)
       count++
   if x + 1 < levels[level].x and y - 1 >= 0
-    if findBombInList(x + 1, y - 1)
+    if findItemInList(bombsList, x + 1, y - 1)
       count++
   if x - 1 >= 0
-    if findBombInList(x - 1, y)
+    if findItemInList(bombsList, x - 1, y)
       count++
   if x + 1 < levels[level].x
-    if findBombInList(x + 1, y)
+    if findItemInList(bombsList, x + 1, y)
       count++
   if x - 1 >= 0 and y + 1 < levels[level].y
-    if findBombInList(x - 1, y + 1)
+    if findItemInList(bombsList, x - 1, y + 1)
       count++
   if y + 1 < levels[level].y
-    if findBombInList(x, y + 1)
+    if findItemInList(bombsList, x, y + 1)
       count++
   if x + 1 < levels[level].x and y + 1 < levels[level].y
-    if findBombInList(x + 1, y + 1)
+    if findItemInList(bombsList, x + 1, y + 1)
       count++
   return count
 
@@ -208,47 +207,32 @@ generateBombs = (x, y) ->
     newX = Math.floor(Math.random() * levels[level].x)
     newY = Math.floor(Math.random() * levels[level].y)
     # unless the new coordinates are new and are not the first click pos, add new bomb to list
-    unless findBombInList(newX, newY) or (newX == x and newY == y)
+    unless findItemInList(bombsList, newX, newY) or (newX == x and newY == y)
       bombsList.push({x: newX, y: newY})
       bombs++
-      console.log "x: " + newX + ", y: " + newY
 
 
 putFlag = (x, y) ->
-  if findFlagInList(x, y)
-    console.log("remove flag")
-    temp = []
-    for flag in flagsList
-      unless flag.x == x and flag.y == y
-        temp.push(flag)
-    flagsList = temp
-    drawSquareBack(x, y)
-    drawUpButton(x, y)
-  else
-    console.log("put flag")
-    flagsList.push({
-      x: x
-      y: y
-    })
-    drawCharacter(x, y, "F", "#FF0000")
-  console.log flagsList
+  unless findItemInList(flippedList, x, y)
+    #if findFlagInList(x, y)
+    if findItemInList(flagsList, x, y)
+      temp = []
+      for flag in flagsList
+        unless flag.x == x and flag.y == y
+          temp.push(flag)
+      flagsList = temp
+      drawSquareBack(x, y)
+      drawUpButton(x, y)
+    else
+      flagsList.push({
+        x: x
+        y: y
+      })
+      drawCharacter(x, y, "F", "#FF0000")
 
 findItemInList = (list, x, y) ->
   for item in list
     if item.x == x and item.y == y
-      return true
-  return false
-
-findFlagInList = (x, y) ->
-  for flag in flagsList
-    if flag.x == x and flag.y == y
-      return true
-  return false
-
-# verifies if the pair of coordinates already exists in the list
-findBombInList = (x, y) ->
-  for bomb in bombsList
-    if bomb.x == x and bomb.y == y
       return true
   return false
 
