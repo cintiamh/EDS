@@ -71,3 +71,11 @@ h1 {
 #game {
     border: 1px solid #7B7B7B;
 }
+
+.controls {
+    padding: 10px 0;
+}
+
+strong {
+    font-weight: bold;
+}

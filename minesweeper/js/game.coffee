@@ -190,6 +190,8 @@ putFlag = (x, y) ->
         y: y
       })
       drawCharacter(x, y, "F", "#FF0000")
+      bombs--
+      updateBombs()
 
 # When the player chooses a new levels, sets up all the variables for a new game.
 setNewLevel = (l) ->
@@ -212,6 +214,7 @@ generateBombs = (x, y) ->
     unless findItemInList(bombsList, newX, newY) or (newX == x and newY == y)
       bombsList.push({x: newX, y: newY})
       bombs++
+  updateBombs()
 
 findItemInList = (list, x, y) ->
   for item in list
@@ -224,7 +227,39 @@ start = ->
   flagsList = []
 
 prepareCanvas = ->
-  setNewLevel(0)
+  setNewLevel(level)
   drawTable()
 
 prepareCanvas()
+
+setInterval(callTimer, 1000)
+
+###
+  Controlling external elements
+  - Level Select
+  - Remaining Bombs #
+  - Clock
+###
+
+updateBombs = ->
+  console.log("updateBombs: " + bombs)
+  if bombs >= 0
+    document.getElementById("bombs").innerHTML = bombs
+
+callTimer = ->
+  if running
+    time++
+    document.getElementById("time").innerHTML = convertNumToTimestamp(time)
+
+convertNumToTimestamp = (t) ->
+  sec = fixDecimal(Math.floor(t % 60))
+  min = fixDecimal(Math.floor(t / 60))
+  hor = fixDecimal(Math.floor(t / (60 * 60)))
+  return "" + hor + ":" + min + ":" + sec
+
+fixDecimal = (n) ->
+  unless n >= 10
+    return "0" + n
+  return n
+
+window.setInterval(callTimer, 1000)

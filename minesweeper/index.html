@@ -9,7 +9,31 @@
 <body>
 <div id="wrapper">
     <h1>Minesweeper</h1>
+
+    <div class="controls">
+        <strong>Bombs:</strong>
+        <span class="control_item" id="bombs">
+            0
+        </span>
+        &nbsp;&nbsp;
+        <strong>Time:</strong>
+        <span class="control_item" id="time">
+            00:00:00
+        </span>
+    </div>
+
     <canvas id="game"></canvas>
+
+    <div class="controls">
+        <form id="level_form" action="index.html">
+            <select name="level">
+                <option value="0">Beginner</option>
+                <option value="1">Intermediate</option>
+                <option value="2">Advanced</option>
+            </select>
+            <input type="submit" value="Start">
+        </form>
+    </div>
 </div>
 
 <script type="text/javascript" src="js/game.js"></script>
