@@ -7,6 +7,7 @@ canvas = document.getElementById('game')
 context = canvas.getContext "2d"
 running = false
 exploded = false
+won = false
 time = 0
 level = 0
 levels = [
@@ -112,7 +113,8 @@ canvas.addEventListener(
   (evt) ->
     evt.preventDefault()
     mousePos = getMousePos(canvas, evt)
-    flipPiece(mousePos.x, mousePos.y)
+    unless exploded or won
+      flipPiece(mousePos.x, mousePos.y)
     return false
   false
 )
@@ -122,7 +124,8 @@ canvas.addEventListener(
   (evt) ->
     evt.preventDefault()
     mousePos = getMousePos(canvas, evt)
-    putFlag mousePos.x, mousePos.y
+    unless exploded or won
+      putFlag mousePos.x, mousePos.y
     return false
   false
 )
@@ -154,8 +157,13 @@ discoverTiles = (x, y) ->
 explodeBomb = ->
   exploded = true
   bombsList.map (bomb) ->
-    drawDownButton(bomb.x, bomb.y)
-    drawCharacter(bomb.x, bomb.y, "B", "#000000")
+    unless findItemInList(flagsList, bomb.x, bomb.y)
+      drawDownButton(bomb.x, bomb.y)
+      drawCharacter(bomb.x, bomb.y, "B", "#000000")
+  flagsList.map (flag) ->
+    unless findItemInList(bombsList, flag.x, flag.y)
+      drawUpButton(flag.x, flag.y)
+      drawCharacter(flag.x, flag.y, "W", "#0000FF")
 
 # Recursively visits all neighbors to check if it s empty or not
 discoverNeighbors = (x, y) ->
@@ -191,7 +199,19 @@ putFlag = (x, y) ->
       })
       drawCharacter(x, y, "F", "#FF0000")
       bombs--
+      if checkEndOfGame()
+        won = true
       updateBombs()
+
+
+
+checkEndOfGame = ->
+  if bombsList.length == flagsList.length
+    flagsList.map (flag) ->
+      unless findItemInList(bombsList, flag.x, flag.y)
+        return false
+    return true
+  return false
 
 # When the player chooses a new levels, sets up all the variables for a new game.
 setNewLevel = (l) ->
@@ -224,13 +244,7 @@ findItemInList = (list, x, y) ->
 
 start = ->
   running = true
-  flagsList = []
-
-prepareCanvas = ->
-  setNewLevel(level)
-  drawTable()
-
-prepareCanvas()
+  updateBombs()
 
 setInterval(callTimer, 1000)
 
@@ -241,13 +255,15 @@ setInterval(callTimer, 1000)
   - Clock
 ###
 
+# bombs number
 updateBombs = ->
-  console.log("updateBombs: " + bombs)
+  #console.log("updateBombs: " + bombs)
   if bombs >= 0
     document.getElementById("bombs").innerHTML = bombs
 
+# timer (clock)
 callTimer = ->
-  if running
+  if running and !exploded and !won
     time++
     document.getElementById("time").innerHTML = convertNumToTimestamp(time)
 
@@ -263,3 +279,30 @@ fixDecimal = (n) ->
   return n
 
 window.setInterval(callTimer, 1000)
+
+levelForm = ""
+
+# select new level
+setFormListeners = ->
+  levelForm = document.getElementById("levelBtn")
+  levelForm.addEventListener("click", setNewLevelValue)
+
+setNewLevelValue = ->
+  levelSel = document.getElementById("levelSel")
+  level = parseInt(levelSel.value)
+  prepareCanvas()
+
+prepareCanvas = ->
+  running = false
+  exploded = false
+  won = false
+  time = 0
+  bombs = levels[level].bombs
+  bombsList = []
+  flagsList = []
+  flippedList = []
+  setNewLevel(level)
+  drawTable()
+  setFormListeners()
+
+prepareCanvas()
