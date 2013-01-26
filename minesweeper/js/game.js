@@ -223,7 +223,7 @@
   discoverNeighbors = function(x, y) {
     return tileNeighbors(x, y).map(function(tile) {
       var _ref, _ref1;
-      if ((0 <= (_ref = tile.x) && _ref < levels[level].x) && (0 <= (_ref1 = tile.y) && _ref1 < levels[level].y)) {
+      if ((0 <= (_ref = tile.x) && _ref < levels[level].x) && (0 <= (_ref1 = tile.y) && _ref1 < levels[level].y) && !findItemInList(flagsList, tile.x, tile.y)) {
         return discoverTiles(tile.x, tile.y);
       }
     });

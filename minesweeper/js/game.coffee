@@ -168,7 +168,7 @@ explodeBomb = ->
 # Recursively visits all neighbors to check if it s empty or not
 discoverNeighbors = (x, y) ->
   tileNeighbors(x, y).map (tile) ->
-    if 0 <= tile.x < levels[level].x and 0 <= tile.y < levels[level].y
+    if 0 <= tile.x < levels[level].x and 0 <= tile.y < levels[level].y and !findItemInList(flagsList, tile.x, tile.y)
       discoverTiles(tile.x, tile.y)
 
 # Counts the number of neighbors that are bombs
@@ -202,8 +202,6 @@ putFlag = (x, y) ->
       if checkEndOfGame()
         won = true
       updateBombs()
-
-
 
 checkEndOfGame = ->
   if bombsList.length == flagsList.length
