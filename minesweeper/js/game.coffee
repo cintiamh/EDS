@@ -118,8 +118,53 @@ drawBomb = (x, y) ->
   context.strokeStyle = "#000000"
   context.stroke()
   # highlight on the top corner
-  #context.beginPath()
-  #context.arc((x + 0.5) * BLOCK_SIZE, (y + 0.5) * BLOCK_SIZE, BLOCK_SIZE * 0.3, 0, 2 * Math.PI, false)
+  context.beginPath()
+  context.arc((x + 0.35) * BLOCK_SIZE, (y + 0.35) * BLOCK_SIZE, BLOCK_SIZE * 0.1, 0, 2 * Math.PI, false)
+  context.fillStyle = "#FFFFFF"
+  context.fill()
+
+drawWrong = (x, y) ->
+  context.beginPath()
+  context.moveTo(x * BLOCK_SIZE, y * BLOCK_SIZE)
+  context.lineTo((x + 1) * BLOCK_SIZE, (y + 1) * BLOCK_SIZE)
+  context.moveTo((x + 1) * BLOCK_SIZE, y * BLOCK_SIZE)
+  context.lineTo(x * BLOCK_SIZE, (y + 1) * BLOCK_SIZE)
+  context.lineWidth = 2
+  context.strokeStyle = "#FF0000"
+  context.stroke()
+
+drawFlag = (x, y) ->
+  context.beginPath()
+  context.moveTo((x + 0.5) * BLOCK_SIZE, (y + 0.5) * BLOCK_SIZE)
+  context.lineTo((x + 0.5) * BLOCK_SIZE, (y + 0.9) * BLOCK_SIZE)
+  context.lineWidth = 2
+  context.strokeStyle = "#000000"
+  context.stroke()
+  # drawing the triangle
+  context.beginPath()
+  context.moveTo((x + 0.55) * BLOCK_SIZE, (y + 0.1) * BLOCK_SIZE)
+  context.lineTo((x + 0.55) * BLOCK_SIZE, (y + 0.55) * BLOCK_SIZE)
+  context.lineTo((x + 0.1) * BLOCK_SIZE, (y + 0.3) * BLOCK_SIZE)
+  context.closePath()
+  context.fillStyle = "#FF0000"
+  context.fill()
+  #drawing flag base
+  context.beginPath()
+  context.moveTo((x + 0.4) * BLOCK_SIZE, (y + 0.7) * BLOCK_SIZE)
+  context.lineTo((x + 0.6) * BLOCK_SIZE, (y + 0.7) * BLOCK_SIZE)
+  context.lineTo((x + 0.6) * BLOCK_SIZE, (y + 0.8) * BLOCK_SIZE)
+  context.lineTo((x + 0.4) * BLOCK_SIZE, (y + 0.8) * BLOCK_SIZE)
+  context.closePath()
+  context.fillStyle = "#000000"
+  context.fill()
+  context.beginPath()
+  context.moveTo((x + 0.3) * BLOCK_SIZE, (y + 0.8) * BLOCK_SIZE)
+  context.lineTo((x + 0.7) * BLOCK_SIZE, (y + 0.8) * BLOCK_SIZE)
+  context.lineTo((x + 0.7) * BLOCK_SIZE, (y + 0.9) * BLOCK_SIZE)
+  context.lineTo((x + 0.3) * BLOCK_SIZE, (y + 0.9) * BLOCK_SIZE)
+  context.closePath()
+  context.fillStyle = "#000000"
+  context.fill()
 
 # Mouse events
 getMousePos = (canvas, evt) ->
@@ -186,7 +231,9 @@ explodeBomb = ->
   flagsList.map (flag) ->
     unless findItemInList(bombsList, flag.x, flag.y)
       drawUpButton(flag.x, flag.y)
-      drawCharacter(flag.x, flag.y, "W", "#0000FF")
+      #drawCharacter(flag.x, flag.y, "W", "#0000FF")
+      drawBomb(flag.x, flag.y)
+      drawWrong(flag.x, flag.y)
 
 # Recursively visits all neighbors to check if it s empty or not
 discoverNeighbors = (x, y) ->
@@ -220,7 +267,8 @@ putFlag = (x, y) ->
         x: x
         y: y
       })
-      drawCharacter(x, y, "F", "#FF0000")
+      #drawCharacter(x, y, "F", "#FF0000")
+      drawFlag(x, y)
       bombs--
       if checkEndOfGame()
         won = true
