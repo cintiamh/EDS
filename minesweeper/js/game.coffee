@@ -4,6 +4,7 @@ REFRESH_RATE = 120 # ms
 
 # global variables
 canvas = document.getElementById('game')
+
 context = canvas.getContext "2d"
 running = false
 exploded = false
@@ -223,6 +224,7 @@ discoverTiles = (x, y) ->
 # Sets the end of game and draws all bombs
 explodeBomb = ->
   exploded = true
+  document.getElementById("message").innerHTML = "You just exploded!!!"
   bombsList.map (bomb) ->
     unless findItemInList(flagsList, bomb.x, bomb.y)
       drawDownButton(bomb.x, bomb.y)
@@ -272,6 +274,7 @@ putFlag = (x, y) ->
       bombs--
       if checkEndOfGame()
         won = true
+        document.getElementById("message").innerHTML = "Congratulations!!! You WON!!!"
       updateBombs()
 
 checkEndOfGame = ->
@@ -315,7 +318,7 @@ start = ->
   running = true
   updateBombs()
 
-setInterval(callTimer, 1000)
+#setInterval(callTimer, 1000)
 
 ###
   Controlling external elements
@@ -362,6 +365,8 @@ setNewLevelValue = ->
   prepareCanvas()
 
 prepareCanvas = ->
+  document.getElementById("message").innerHTML = ""
+  document.getElementById("time").innerHTML = convertNumToTimestamp(0)
   running = false
   exploded = false
   won = false

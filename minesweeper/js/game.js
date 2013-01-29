@@ -271,6 +271,7 @@
 
   explodeBomb = function() {
     exploded = true;
+    document.getElementById("message").innerHTML = "You just exploded!!!";
     bombsList.map(function(bomb) {
       if (!findItemInList(flagsList, bomb.x, bomb.y)) {
         drawDownButton(bomb.x, bomb.y);
@@ -332,6 +333,7 @@
         bombs--;
         if (checkEndOfGame()) {
           won = true;
+          document.getElementById("message").innerHTML = "Congratulations!!! You WON!!!";
         }
         return updateBombs();
       }
@@ -395,8 +397,6 @@
     return updateBombs();
   };
 
-  setInterval(callTimer, 1000);
-
   /*
     Controlling external elements
     - Level Select
@@ -450,6 +450,8 @@
   };
 
   prepareCanvas = function() {
+    document.getElementById("message").innerHTML = "";
+    document.getElementById("time").innerHTML = convertNumToTimestamp(0);
     running = false;
     exploded = false;
     won = false;
