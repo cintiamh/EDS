@@ -99,6 +99,28 @@ drawTable = ->
     for posy in [0..levels[level].y]
       drawUpButton(posx, posy)
 
+# draw the bomb image
+drawBomb = (x, y) ->
+  # the bomb circle
+  context.beginPath()
+  context.arc((x + 0.5) * BLOCK_SIZE, (y + 0.5) * BLOCK_SIZE, BLOCK_SIZE * 0.3, 0, 2 * Math.PI, false)
+  context.fillStyle = "#000000"
+  context.fill()
+  context.moveTo((x + 0.5) * BLOCK_SIZE, (y + 0.05) * BLOCK_SIZE)
+  context.lineTo((x + 0.5) * BLOCK_SIZE, (y + 0.95) * BLOCK_SIZE)
+  context.moveTo((x + 0.05) * BLOCK_SIZE, (y + 0.5) * BLOCK_SIZE)
+  context.lineTo((x + 0.95) * BLOCK_SIZE, (y + 0.5) * BLOCK_SIZE)
+  context.moveTo((x + 0.16) * BLOCK_SIZE, (y + 0.16) * BLOCK_SIZE)
+  context.lineTo((x + 0.83) * BLOCK_SIZE, (y + 0.83) * BLOCK_SIZE)
+  context.moveTo((x + 0.83) * BLOCK_SIZE, (y + 0.16) * BLOCK_SIZE)
+  context.lineTo((x + 0.16) * BLOCK_SIZE, (y + 0.83) * BLOCK_SIZE)
+  context.lineWidth = 2
+  context.strokeStyle = "#000000"
+  context.stroke()
+  # highlight on the top corner
+  #context.beginPath()
+  #context.arc((x + 0.5) * BLOCK_SIZE, (y + 0.5) * BLOCK_SIZE, BLOCK_SIZE * 0.3, 0, 2 * Math.PI, false)
+
 # Mouse events
 getMousePos = (canvas, evt) ->
   rect = canvas.getBoundingClientRect()
@@ -159,7 +181,8 @@ explodeBomb = ->
   bombsList.map (bomb) ->
     unless findItemInList(flagsList, bomb.x, bomb.y)
       drawDownButton(bomb.x, bomb.y)
-      drawCharacter(bomb.x, bomb.y, "B", "#000000")
+      #drawCharacter(bomb.x, bomb.y, "B", "#000000")
+      drawBomb(bomb.x, bomb.y)
   flagsList.map (flag) ->
     unless findItemInList(bombsList, flag.x, flag.y)
       drawUpButton(flag.x, flag.y)
