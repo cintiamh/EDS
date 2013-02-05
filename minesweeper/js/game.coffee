@@ -294,6 +294,7 @@ setNewLevel = (l) ->
     bombs = levels[level].bombs
     canvas.width = width
     canvas.height = height
+    updateBombs()
 
 # recreates a new list of bombs according to the level.
 generateBombs = (x, y) ->

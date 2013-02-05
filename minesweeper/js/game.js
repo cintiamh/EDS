@@ -359,7 +359,8 @@
       height = levels[level].y * BLOCK_SIZE;
       bombs = levels[level].bombs;
       canvas.width = width;
-      return canvas.height = height;
+      canvas.height = height;
+      return updateBombs();
     }
   };
 
