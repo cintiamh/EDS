@@ -6,9 +6,9 @@
 
   BLOCK_SIZE = 3;
 
-  WIDTH_BLOCKS = 232;
+  WIDTH_BLOCKS = 184;
 
-  HEIGHT_BLOCKS = 148;
+  HEIGHT_BLOCKS = 181;
 
   WIDTH = WIDTH_BLOCKS * BLOCK_SIZE;
 
@@ -36,12 +36,14 @@
 
   SquaryObject = (function() {
 
-    function SquaryObject(x, y, color, pos1, pos2) {
+    function SquaryObject(x, y, width, height, color, sqrArr1, sqrArr2) {
       this.x = x;
       this.y = y;
+      this.width = width;
+      this.height = height;
       this.color = color;
-      this.pos1 = pos1;
-      this.pos2 = pos2;
+      this.sqrArr1 = sqrArr1;
+      this.sqrArr2 = sqrArr2;
       this.firstAnim = true;
       this.squareSeq = this.pos1;
     }
@@ -49,10 +51,10 @@
     SquaryObject.prototype.animate = function() {
       if (this.firstAnim) {
         this.firstAnim = false;
-        return this.squareSeq = this.pos1;
+        return this.squareSeq = this.sqrArr1;
       } else {
         this.firstAnim = true;
-        return this.squareSeq = this.pos2;
+        return this.squareSeq = this.sqrArr2;
       }
     };
 

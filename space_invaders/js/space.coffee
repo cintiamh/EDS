@@ -1,6 +1,6 @@
 BLOCK_SIZE = 3
-WIDTH_BLOCKS = 232
-HEIGHT_BLOCKS = 148
+WIDTH_BLOCKS = 184
+HEIGHT_BLOCKS = 181
 WIDTH = WIDTH_BLOCKS * BLOCK_SIZE
 HEIGHT = HEIGHT_BLOCKS * BLOCK_SIZE
 
@@ -26,17 +26,17 @@ backgroundLayer.add(backgroundRect)
 stage.add(backgroundLayer)
 
 class SquaryObject
-  constructor: (@x, @y, @color, @pos1, @pos2) ->
+  constructor: (@x, @y, @width, @height, @color, @sqrArr1, @sqrArr2) ->
     @firstAnim = true
     @squareSeq = @pos1
 
   animate: ->
     if (@firstAnim)
       @firstAnim = false
-      @squareSeq = @pos1
+      @squareSeq = @sqrArr1
     else
       @firstAnim = true
-      @squareSeq = @pos2
+      @squareSeq = @sqrArr2
 
   draw: ->
 
