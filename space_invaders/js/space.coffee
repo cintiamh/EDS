@@ -1,4 +1,4 @@
-BLOCK_SIZE = 3
+BLOCK_SIZE = 4
 WIDTH_BLOCKS = 184
 HEIGHT_BLOCKS = 181
 WIDTH = WIDTH_BLOCKS * BLOCK_SIZE
@@ -10,36 +10,87 @@ stage = new Kinetic.Stage({
   height: HEIGHT
 })
 
-# Drawing the black background rectangle
-backgroundLayer = new Kinetic.Layer();
+layer = new Kinetic.Layer()
 
-backgroundRect = new Kinetic.Rect({
-  x: 0
-  y: 0
-  width: WIDTH
-  height: HEIGHT
-  fill: "#000000"
-})
+animations =
+  alien01: [
+    {
+      x: 4
+      y: 4
+      width: 48
+      height: 32
+    }
+    {
+      x: 56
+      y: 4
+      width: 48
+      height: 32
+    }
+  ]
+  alien02: [
+    {
+      x: 4
+      y: 40
+      width: 44
+      height: 32
+    }
+    {
+      x: 52
+      y: 40
+      width: 44
+      height: 32
+    }
+  ]
+  alien03: [
+    {
+      x: 4
+      y: 72
+      width: 32
+      height: 32
+    }
+    {
+      x: 40
+      y: 72
+      width: 32
+      height: 32
+    }
+  ]
 
-backgroundLayer.add(backgroundRect)
+imageObj = new Image()
+imageObj.onload = ->
+  alien01 = new Kinetic.Sprite
+    x: 10
+    y: 10
+    image: imageObj
+    animation: 'alien01'
+    animations: animations
+    frameRate: 2
 
-stage.add(backgroundLayer)
+  layer.add(alien01)
 
-class SquaryObject
-  constructor: (@x, @y, @width, @height, @color, @sqrArr1, @sqrArr2) ->
-    @firstAnim = true
-    @squareSeq = @pos1
+  alien02 = new Kinetic.Sprite
+    x: 10
+    y: 46
+    image: imageObj
+    animation: 'alien02'
+    animations: animations
+    frameRate: 2
 
-  animate: ->
-    if (@firstAnim)
-      @firstAnim = false
-      @squareSeq = @sqrArr1
-    else
-      @firstAnim = true
-      @squareSeq = @sqrArr2
+  layer.add(alien02)
 
-  draw: ->
+  alien03 = new Kinetic.Sprite
+    x: 10
+    y: 82
+    image: imageObj
+    animation: 'alien03'
+    animations: animations
+    frameRate: 2
 
+  layer.add(alien03)
 
-class Alien1 extends SquaryObject
-  draw: ->
+  stage.add(layer)
+  alien01.start()
+  alien02.start()
+  alien03.start()
+
+imageObj.src = "img/aliens_all_small2.png"
