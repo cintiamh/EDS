@@ -1,8 +1,15 @@
-BLOCK_SIZE = 4
+BLOCK_SIZE = 3
 WIDTH_BLOCKS = 184
 HEIGHT_BLOCKS = 181
 WIDTH = WIDTH_BLOCKS * BLOCK_SIZE
 HEIGHT = HEIGHT_BLOCKS * BLOCK_SIZE
+
+aliensArr = []
+startTime = 0
+movCount = 0
+movDirection = 1
+movSideDist = 2 * BLOCK_SIZE
+movDownDist = 6 * BLOCK_SIZE
 
 stage = new Kinetic.Stage({
   container: "container"
@@ -12,85 +19,117 @@ stage = new Kinetic.Stage({
 
 layer = new Kinetic.Layer()
 
+background = new Kinetic.Rect
+  x: 0
+  y: 0
+  width: WIDTH
+  height: HEIGHT
+  fill: "#000000"
+
+layer.add(background)
+
+# Animations images mapping array
 animations =
   alien01: [
     {
-      x: 4
-      y: 4
-      width: 48
-      height: 32
+      x: BLOCK_SIZE
+      y: BLOCK_SIZE
+      width: 12 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
     }
     {
-      x: 56
-      y: 4
-      width: 48
-      height: 32
+      x: 14 * BLOCK_SIZE
+      y: BLOCK_SIZE
+      width: 12 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
     }
   ]
   alien02: [
     {
-      x: 4
-      y: 40
-      width: 44
-      height: 32
+      x: BLOCK_SIZE
+      y: 10 * BLOCK_SIZE
+      width: 11 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
     }
     {
-      x: 52
-      y: 40
-      width: 44
-      height: 32
+      x: 13 * BLOCK_SIZE
+      y: 10 * BLOCK_SIZE
+      width: 11 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
     }
   ]
   alien03: [
     {
-      x: 4
-      y: 72
-      width: 32
-      height: 32
+      x: BLOCK_SIZE
+      y: 19 * BLOCK_SIZE
+      width: 8 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
     }
     {
-      x: 40
-      y: 72
-      width: 32
-      height: 32
+      x: 10 * BLOCK_SIZE
+      y: 19 * BLOCK_SIZE
+      width: 8 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
     }
   ]
 
 imageObj = new Image()
+
+aliensGroup = new Kinetic.Group()
+
 imageObj.onload = ->
-  alien01 = new Kinetic.Sprite
-    x: 10
-    y: 10
-    image: imageObj
-    animation: 'alien01'
-    animations: animations
-    frameRate: 2
 
-  layer.add(alien01)
+  for num1 in [0..4]
+    for num2 in [0..10]
+      if num1 == 0
+        aliensArr.push(new Kinetic.Sprite
+          x: BLOCK_SIZE + num2 * (12 + 2) * BLOCK_SIZE
+          y: num1 * (8 + 6) * BLOCK_SIZE
+          image: imageObj
+          animation: 'alien03'
+          animations: animations
+          frameRate: 2
+        )
+      if num1 == 1 || num1 == 2
+        aliensArr.push(new Kinetic.Sprite
+          x: num2 * (12 + 2) * BLOCK_SIZE
+          y: num1 * (8 + 6) * BLOCK_SIZE
+          image: imageObj
+          animation: 'alien02'
+          animations: animations
+          frameRate: 2
+        )
+      if num1 == 3 || num1 == 4
+        aliensArr.push(new Kinetic.Sprite
+          x: num2 * (12 + 2) * BLOCK_SIZE
+          y: num1 * (8 + 6) * BLOCK_SIZE
+          image: imageObj
+          animation: 'alien01'
+          animations: animations
+          frameRate: 2
+        )
 
-  alien02 = new Kinetic.Sprite
-    x: 10
-    y: 46
-    image: imageObj
-    animation: 'alien02'
-    animations: animations
-    frameRate: 2
+  for alien in aliensArr
+    #layer.add(alien)
+    aliensGroup.add(alien)
+    layer.add(aliensGroup)
+    alien.start()
 
-  layer.add(alien02)
+  aliensGroup.move(BLOCK_SIZE, BLOCK_SIZE)
 
-  alien03 = new Kinetic.Sprite
-    x: 10
-    y: 82
-    image: imageObj
-    animation: 'alien03'
-    animations: animations
-    frameRate: 2
+stage.add(layer)
 
-  layer.add(alien03)
+animation = new Kinetic.Animation((frame) ->
+  if frame.time - startTime > 500
+    startTime = frame.time
+    if movCount % 16 == 15
+      aliensGroup.move(0, movDownDist)
+      movDirection *= -1
+    else
+      aliensGroup.move(movDirection * movSideDist, 0)
+    movCount++
+)
 
-  stage.add(layer)
-  alien01.start()
-  alien02.start()
-  alien03.start()
+animation.start()
 
-imageObj.src = "img/aliens_all_small2.png"
+imageObj.src = "img/aliens_all.png"
