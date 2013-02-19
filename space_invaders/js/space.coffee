@@ -116,28 +116,19 @@ imageObj.onload = ->
         aliensArr.push(new Alien(
           BLOCK_SIZE + num2 * (12 + 2) * BLOCK_SIZE
           num1 * (8 + 6) * BLOCK_SIZE
-          imageObj
           'alien03'
-          animations
-          1
         ))
       if num1 == 1 || num1 == 2
         aliensArr.push(new Alien(
           num2 * (12 + 2) * BLOCK_SIZE
           num1 * (8 + 6) * BLOCK_SIZE
-          imageObj
           'alien02'
-          animations
-          1
         ))
       if num1 == 3 || num1 == 4
         aliensArr.push(new Alien(
           num2 * (12 + 2) * BLOCK_SIZE
           num1 * (8 + 6) * BLOCK_SIZE
-          imageObj
           'alien01'
-          animations
-          1
         ))
 
   for alien in aliensArr
@@ -184,11 +175,10 @@ animation.start()
 
 imageObj.src = "img/aliens_all.png"
 
-class AliensBlock
+class AliensGroup
   constructor: ->
     @aliensGroup = new Kinetic.Group()
-    @rows = 0
-    @cols = 0
+    @aliensArr = []
 
   initialize: ->
     for alien in aliensArr
@@ -197,16 +187,29 @@ class AliensBlock
       #alien.kinetic_sprite.attrs.frameRate = 2
       alien.kinetic_sprite.start()
 
-class SpriteImage
-  constructor: (@x, @y, @image, @animation, @animations, @framerate) ->
+###
+# TODO: redo basic sprite class to be extended (constructor, move, detect shoot, etc)
+###
+
+# class to represent each one of the individual alien and its functionalities
+class Alien
+  constructor: (@x, @y, @animation) ->
     @alive = true
     @kinetic_sprite = new Kinetic.Sprite
       x: @x
       y: @y
-      image: @image
+      image: imageObj
       animation: @animation
-      animations: @animations
-      frameRate: @framerate
+      animations: animations
+      frameRate: 2
+    @kinetic_sprite.setHeight(8 * BLOCK_SIZE)
+    switch @animation
+      when 'alien01'
+        @kinetic_sprite.setWidth(8 * BLOCK_SIZE)
+      when 'alien02'
+        @kinetic_sprite.setWidth(11 * BLOCK_SIZE)
+      when 'alien03'
+        @kinetic_sprite.setWidth(12 * BLOCK_SIZE)
 
   kill: ->
     @alive = false
@@ -215,11 +218,11 @@ class SpriteImage
   isAlive: ->
     return @alive
 
-class Alien extends SpriteImage
   setFrameRate: (@framerate) ->
     @kinetic_sprite.attrs.frameRate = @framerate
     @kinetic_sprite.start()
 
+# class to represent the shooter that stays at the base of the screen (player)
 class Canon
   constructor: ->
     @speed = 0
