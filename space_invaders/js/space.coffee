@@ -1,15 +1,17 @@
 BLOCK_SIZE = 3
-WIDTH_BLOCKS = 190
-HEIGHT_BLOCKS = 197
+WIDTH_BLOCKS = 184
+HEIGHT_BLOCKS = 191
 WIDTH = WIDTH_BLOCKS * BLOCK_SIZE
 HEIGHT = HEIGHT_BLOCKS * BLOCK_SIZE
 
 aliensArr = []
+canon = null
 startTime = 0
 movCount = 0
 movDirection = 1
 movSideDist = 2 * BLOCK_SIZE
 movDownDist = 6 * BLOCK_SIZE
+canonSpeed = 15
 
 stage = new Kinetic.Stage({
   container: "container"
@@ -105,6 +107,9 @@ imageObj = new Image()
 aliensGroup = new Kinetic.Group()
 
 imageObj.onload = ->
+  canon = new Canon()
+  layer.add(canon.kinetic_sprite)
+
   for num1 in [0..4]
     for num2 in [0..10]
       if num1 == 0
@@ -144,9 +149,27 @@ imageObj.onload = ->
 
   aliensGroup.move(BLOCK_SIZE, BLOCK_SIZE)
 
+  document.onkeydown = (event) ->
+    switch event.keyCode
+      # left arrow / a
+      when 37, 65
+        canon.startMove(-canonSpeed)
+      # right arrow / d
+      when 39, 68
+        canon.startMove(canonSpeed)
+      # space bar
+      when 32
+        canon.shoot()
+  document.onkeyup = (event) ->
+    canon.stopMove()
+
 stage.add(layer)
 
 animation = new Kinetic.Animation((frame) ->
+  # move shooter
+  if canon
+    canon.move()
+  # move aliens
   if frame.time - startTime > 500
     startTime = frame.time
     if movCount % 16 == 15
@@ -161,9 +184,11 @@ animation.start()
 
 imageObj.src = "img/aliens_all.png"
 
-class AlienBlock
+class AliensBlock
   constructor: ->
     @aliensGroup = new Kinetic.Group()
+    @rows = 0
+    @cols = 0
 
   initialize: ->
     for alien in aliensArr
@@ -194,3 +219,37 @@ class Alien extends SpriteImage
   setFrameRate: (@framerate) ->
     @kinetic_sprite.attrs.frameRate = @framerate
     @kinetic_sprite.start()
+
+class Canon
+  constructor: ->
+    @speed = 0
+    @kinetic_sprite = new Kinetic.Sprite
+      x: WIDTH / 2 - 7 * BLOCK_SIZE
+      y: HEIGHT - 8 * BLOCK_SIZE
+      image: imageObj
+      animation: 'canon'
+      animations: animations
+      frameRate: 1
+    @kinetic_sprite.setWidth(15 * BLOCK_SIZE)
+    @kinetic_sprite.setHeight(8 * BLOCK_SIZE)
+
+  startMove: (vel) ->
+    @speed = vel
+
+  stopMove: ->
+    @speed = 0
+
+  shoot: ->
+    console.log("pew!")
+
+  move: ->
+    vel = @speed
+    sprite = @kinetic_sprite
+    x = sprite.getX()
+    # limits the move inside the screeen
+    if ((vel < 0 and x > 0) or (vel > 0 and x < WIDTH - 15 * BLOCK_SIZE))
+      sprite.move(vel, 0)
+
+
+
+
