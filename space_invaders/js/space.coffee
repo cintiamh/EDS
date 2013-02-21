@@ -222,8 +222,11 @@ class SpriteImage
     return @alive
 
 # class to represent each one of the individual alien and its functionalities
-class Alien
+class Alien extends SpriteImage
   constructor: (@x, @y, @animation) ->
+    super(@x, @y, imageObj, @animation, animations, 2)
+    @alive = true
+    ###
     @alive = true
     @kinetic_sprite = new Kinetic.Sprite
       x: @x
@@ -232,6 +235,7 @@ class Alien
       animation: @animation
       animations: animations
       frameRate: 2
+###
     @kinetic_sprite.setHeight(8 * BLOCK_SIZE)
     switch @animation
       when 'alien01'
@@ -240,22 +244,32 @@ class Alien
         @kinetic_sprite.setWidth(11 * BLOCK_SIZE)
       when 'alien03'
         @kinetic_sprite.setWidth(12 * BLOCK_SIZE)
-
+        ###
   kill: ->
     @alive = false
     @kinetic_sprite.setAnimation('hidden')
 
   isAlive: ->
     return @alive
+###
 
   setFrameRate: (@framerate) ->
     @kinetic_sprite.attrs.frameRate = @framerate
     @kinetic_sprite.start()
 
 # class to represent the shooter that stays at the base of the screen (player)
-class Canon
+class Canon extends SpriteImage
   constructor: ->
     @speed = 0
+    super(
+      WIDTH / 2 - 7 * BLOCK_SIZE
+      HEIGHT - 8 * BLOCK_SIZE
+      imageObj
+      'canon'
+      animations
+      1
+    )
+    ###
     @kinetic_sprite = new Kinetic.Sprite
       x: WIDTH / 2 - 7 * BLOCK_SIZE
       y: HEIGHT - 8 * BLOCK_SIZE
@@ -263,6 +277,7 @@ class Canon
       animation: 'canon'
       animations: animations
       frameRate: 1
+    ###
     @kinetic_sprite.setWidth(15 * BLOCK_SIZE)
     @kinetic_sprite.setHeight(8 * BLOCK_SIZE)
 
