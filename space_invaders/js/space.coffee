@@ -5,6 +5,7 @@ WIDTH = WIDTH_BLOCKS * BLOCK_SIZE
 HEIGHT = HEIGHT_BLOCKS * BLOCK_SIZE
 
 aliensArr = []
+bulletsArr = []
 canon = null
 startTime = 0
 movCount = 0
@@ -12,6 +13,7 @@ movDirection = 1
 movSideDist = 2 * BLOCK_SIZE
 movDownDist = 6 * BLOCK_SIZE
 canonSpeed = 15
+bulletSpeed = 20
 
 stage = new Kinetic.Stage({
   container: "container"
@@ -160,6 +162,13 @@ animation = new Kinetic.Animation((frame) ->
   # move shooter
   if canon
     canon.move()
+  # animate the bullet
+  if bulletsArr.length > 0
+    for bul in bulletsArr
+      if (bul.alive)
+        bul.move()
+        bul.checkAlienCol()
+    #checkBulletCollision()
   # move aliens
   if frame.time - startTime > 500
     startTime = frame.time
@@ -187,13 +196,11 @@ class AliensGroup
       #alien.kinetic_sprite.attrs.frameRate = 2
       alien.kinetic_sprite.start()
 
-###
-# TODO: redo basic sprite class to be extended (constructor, move, detect shoot, etc)
-###
-
 class SpriteImage
   constructor: (@x, @y, @image, @animation, @animations, @frameRate) ->
     @alive = true
+    @width = 0
+    @height = 0
     @kinetic_sprite = new Kinetic.Sprite
       x: @x
       y: @y
@@ -201,57 +208,28 @@ class SpriteImage
       animation: @animation
       animations: @animations
       frameRate: @frameRate
-
-  setWidth: (width) ->
-    @kinetic_sprite.setWidth(width)
-
-  setHeight: (height) ->
-    @kinetic_sprite.setHeight(height)
-
-  getWidth: ->
-    return @kinetic_sprite.getWidth()
-
-  getHeight: ->
-    return @kinetic_sprite.getHeight()
+    @position = @kinetic_sprite.getPosition()
 
   kill: ->
     @alive = false
     @kinetic_sprite.setAnimation('hidden')
 
-  isAlive: ->
-    return @alive
+  updatePosition: ->
+    @position = @kinetic_sprite.getPosition()
 
 # class to represent each one of the individual alien and its functionalities
 class Alien extends SpriteImage
   constructor: (@x, @y, @animation) ->
     super(@x, @y, imageObj, @animation, animations, 2)
     @alive = true
-    ###
-    @alive = true
-    @kinetic_sprite = new Kinetic.Sprite
-      x: @x
-      y: @y
-      image: imageObj
-      animation: @animation
-      animations: animations
-      frameRate: 2
-###
-    @kinetic_sprite.setHeight(8 * BLOCK_SIZE)
+    @height = 8 * BLOCK_SIZE
     switch @animation
       when 'alien01'
-        @kinetic_sprite.setWidth(8 * BLOCK_SIZE)
+        @width = 8 * BLOCK_SIZE
       when 'alien02'
-        @kinetic_sprite.setWidth(11 * BLOCK_SIZE)
+        @width = 11 * BLOCK_SIZE
       when 'alien03'
-        @kinetic_sprite.setWidth(12 * BLOCK_SIZE)
-        ###
-  kill: ->
-    @alive = false
-    @kinetic_sprite.setAnimation('hidden')
-
-  isAlive: ->
-    return @alive
-###
+        @width = 12 * BLOCK_SIZE
 
   setFrameRate: (@framerate) ->
     @kinetic_sprite.attrs.frameRate = @framerate
@@ -269,15 +247,8 @@ class Canon extends SpriteImage
       animations
       1
     )
-    ###
-    @kinetic_sprite = new Kinetic.Sprite
-      x: WIDTH / 2 - 7 * BLOCK_SIZE
-      y: HEIGHT - 8 * BLOCK_SIZE
-      image: imageObj
-      animation: 'canon'
-      animations: animations
-      frameRate: 1
-    ###
+    @width = 15 * BLOCK_SIZE
+    @height = 8 * BLOCK_SIZE
     @kinetic_sprite.setWidth(15 * BLOCK_SIZE)
     @kinetic_sprite.setHeight(8 * BLOCK_SIZE)
 
@@ -289,6 +260,11 @@ class Canon extends SpriteImage
 
   shoot: ->
     console.log("pew!")
+    bulletsArr.push(new Bullet(
+      @kinetic_sprite.getX()
+      @kinetic_sprite.getY()
+      bulletSpeed * -1
+    ))
 
   move: ->
     vel = @speed
@@ -297,6 +273,47 @@ class Canon extends SpriteImage
     # limits the move inside the screeen
     if ((vel < 0 and x > 0) or (vel > 0 and x < WIDTH - 15 * BLOCK_SIZE))
       sprite.move(vel, 0)
+
+class Bullet
+  constructor: (@x, @y, @speed) ->
+    @alive = true
+    @bullet = new Kinetic.Rect
+      x: @x + canon.kinetic_sprite.getWidth() / 2
+      y: @y
+      width: BLOCK_SIZE
+      height: 4 * BLOCK_SIZE
+      fill: '#FFCCCC'
+    layer.add(@bullet)
+    @position = @bullet.getPosition()
+
+  move: ->
+    vel = @speed
+    y = @bullet.getY()
+    if (y < 0 or y > HEIGHT)
+      @kill()
+    else
+      @bullet.setY(y + @speed)
+
+  kill: ->
+    @alive = false
+    @bullet.setHeight(0)
+
+  updatePosition: ->
+    @position = @bullet.getPosition()
+
+  checkAlienCol: ->
+    if (@alive)
+      @updatePosition()
+      for alien in aliensArr
+        if alien.alive
+          alien.updatePosition()
+          if (@position.x > alien.position.x and @position.x < alien.position.x + alien.width)
+            if (@position.y > alien.position.y and @position.y < alien.position.y + alien.height)
+              alien.kill()
+              @kill()
+
+
+
 
 
 
