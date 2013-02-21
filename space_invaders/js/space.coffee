@@ -191,6 +191,36 @@ class AliensGroup
 # TODO: redo basic sprite class to be extended (constructor, move, detect shoot, etc)
 ###
 
+class SpriteImage
+  constructor: (@x, @y, @image, @animation, @animations, @frameRate) ->
+    @alive = true
+    @kinetic_sprite = new Kinetic.Sprite
+      x: @x
+      y: @y
+      image: @image
+      animation: @animation
+      animations: @animations
+      frameRate: @frameRate
+
+  setWidth: (width) ->
+    @kinetic_sprite.setWidth(width)
+
+  setHeight: (height) ->
+    @kinetic_sprite.setHeight(height)
+
+  getWidth: ->
+    return @kinetic_sprite.getWidth()
+
+  getHeight: ->
+    return @kinetic_sprite.getHeight()
+
+  kill: ->
+    @alive = false
+    @kinetic_sprite.setAnimation('hidden')
+
+  isAlive: ->
+    return @alive
+
 # class to represent each one of the individual alien and its functionalities
 class Alien
   constructor: (@x, @y, @animation) ->
