@@ -4,8 +4,6 @@ HEIGHT_NUM_BLOCKS = 191
 WIDTH = WIDTH_NUM_BLOCKS * BLOCK_SIZE
 HEIGHT = HEIGHT_NUM_BLOCKS * BLOCK_SIZE
 
-aliensArr = []
-bulletsArr = []
 canon = null
 
 # aliens movement
@@ -16,6 +14,8 @@ alienDownMove = 6 * BLOCK_SIZE
 alienMovPause = 1
 canonSpeed = 15
 bulletSpeed = 20
+
+alienStrArr = ['alien01', 'alien02', 'alien02', 'alien03', 'alien03']
 
 stage = new Kinetic.Stage
   container: "container"
@@ -107,6 +107,9 @@ animations =
 # The group of aliens that moves in a block
 aliensGroup = new Kinetic.Group()
 
+# Group for the bullets
+bulletsGroup = new Kinetic.Group()
+
 # The image object for the Sprites (aliens, canon, etc)
 imageObj = new Image()
 
@@ -124,6 +127,24 @@ imageObj.onload = ->
   canonLayer.add(canon)
   stage.add(canonLayer)
   canon.start()
+
+  # Create a new group of aliens
+  for num1 in [0..4]
+    for num2 in [0..10]
+      aliensGroup.add(new Kinetic.Sprite
+        x: BLOCK_SIZE + num2 * (12 + 2) * BLOCK_SIZE
+        y: num1 * (8 + 6) * BLOCK_SIZE
+        image: imageObj
+        animation: alienStrArr[num1]
+        animations: animations
+        frameRate: 2
+      )
+
+  for alien in aliensGroup.getChildren()
+    alien.start()
+
+  aliensLayer.add(aliensGroup)
+  stage.add(aliensLayer)
 
 imageObj.src = "img/aliens_all.png"
 
