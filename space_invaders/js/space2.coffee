@@ -37,68 +37,82 @@ backgroundLayer.add(background)
 # Staging the background layer
 stage.add(backgroundLayer)
 
+# create a layer for the aliens
 aliensLayer = new Kinetic.Layer
+
+# create a layer for the canon and bullets
 canonLayer = new Kinetic.Layer
 
 # Animations images mapping array for Sprites
 animations =
   alien01: [
-    x: BLOCK_SIZE
-    y: BLOCK_SIZE
-    width: 12 * BLOCK_SIZE
-    height: 8 * BLOCK_SIZE
-    ,
-    x: 14 * BLOCK_SIZE
-    y: BLOCK_SIZE
-    width: 12 * BLOCK_SIZE
-    height: 8 * BLOCK_SIZE
+    {
+      x: BLOCK_SIZE
+      y: BLOCK_SIZE
+      width: 12 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
+    }
+    {
+      x: 14 * BLOCK_SIZE
+      y: BLOCK_SIZE
+      width: 12 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
+    }
   ]
   alien02: [
-    x: BLOCK_SIZE
-    y: 10 * BLOCK_SIZE
-    width: 11 * BLOCK_SIZE
-    height: 8 * BLOCK_SIZE
-    ,
-    x: 13 * BLOCK_SIZE
-    y: 10 * BLOCK_SIZE
-    width: 11 * BLOCK_SIZE
-    height: 8 * BLOCK_SIZE
+    {
+      x: BLOCK_SIZE
+      y: 10 * BLOCK_SIZE
+      width: 11 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
+    }
+    {
+      x: 13 * BLOCK_SIZE
+      y: 10 * BLOCK_SIZE
+      width: 11 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
+    }
   ]
   alien03: [
-    x: BLOCK_SIZE
-    y: 19 * BLOCK_SIZE
-    width: 8 * BLOCK_SIZE
-    height: 8 * BLOCK_SIZE
-    ,
-    x: 10 * BLOCK_SIZE
-    y: 19 * BLOCK_SIZE
-    width: 8 * BLOCK_SIZE
-    height: 8 * BLOCK_SIZE
+    {
+      x: BLOCK_SIZE
+      y: 19 * BLOCK_SIZE
+      width: 8 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
+    }
+    {
+      x: 10 * BLOCK_SIZE
+      y: 19 * BLOCK_SIZE
+      width: 8 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
+    }
   ]
   spaceship: [
-    x: BLOCK_SIZE
-    y: (3 * 8 + 4) * BLOCK_SIZE
-    width: 16 * BLOCK_SIZE
-    height: 8 * BLOCK_SIZE
+    {
+      x: BLOCK_SIZE
+      y: (3 * 8 + 4) * BLOCK_SIZE
+      width: 16 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
+    }
   ]
   canon: [
-    x: BLOCK_SIZE
-    y: (4 * 8 + 5) * BLOCK_SIZE
-    width: 15 * BLOCK_SIZE
-    height: 8 * BLOCK_SIZE
-  ]
-  hidden: [
-    x: 0
-    y: 0
-    width: 0
-    height: 0
+    {
+      x: BLOCK_SIZE
+      y: (4 * 8 + 5) * BLOCK_SIZE
+      width: 15 * BLOCK_SIZE
+      height: 8 * BLOCK_SIZE
+    }
   ]
 
-imageObj = new Image()
+# The group of aliens that moves in a block
 aliensGroup = new Kinetic.Group()
 
+# The image object for the Sprites (aliens, canon, etc)
+imageObj = new Image()
+
 imageObj.onload = ->
-  console.log("Testing")
+
+  # Renders the canon
   canon = new Kinetic.Sprite
     x: WIDTH / 2 - 7 * BLOCK_SIZE
     y: HEIGHT - 8 * BLOCK_SIZE
@@ -107,12 +121,26 @@ imageObj.onload = ->
     animations: animations
     frameRate: 1
 
-  console.log(canon)
   canonLayer.add(canon)
   stage.add(canonLayer)
   canon.start()
 
+imageObj.src = "img/aliens_all.png"
 
+canonAnimation = new Kinetic.Animation (frame) ->
+  if canon
+    # checks for keyboard inputs to move the canon
+    document.onkeydown = (event) ->
+      switch event.keyCode
+        # left arrow / a
+        when 37, 65
+          canon.move(-canonSpeed, 0)
+        # right arrow / d
+        when 39, 68
+          canon.move(canonSpeed, 0)
+        # space bar
+        when 32
+          #canon.shoot()
+          console.log("pew")
 
-
-
+canonAnimation.start()

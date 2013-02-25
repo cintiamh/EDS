@@ -1,13 +1,12 @@
-jQuery ->
-  class ListView extends Backbone.View
-    el: $ 'p'
+class ListView extends Backbone.View
+  el: $ 'p'
 
-    initialize: ->
-      _.bindAll @
-      @render()
+  initialize: ->
+    _.bindAll @
+    @render()
 
-    render: ->
-      $(@el).append '<ul><li>Hello, Backbone!</li></ul>'
+  render: ->
+    $(@el).append '<ul><li>Hello, Backbone!</li></ul>'
 
-  listView = new ListView
+listView = new ListView
 
