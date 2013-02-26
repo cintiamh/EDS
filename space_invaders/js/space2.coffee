@@ -24,6 +24,7 @@ canonSpeed = 15
 bulletSpeed = 15
 
 alienStrArr = ['alien03', 'alien02', 'alien02', 'alien01', 'alien01']
+aliensWidthArr = [8 * BLOCK_SIZE, 11 * BLOCK_SIZE, 11 * BLOCK_SIZE, 12 * BLOCK_SIZE, 12 * BLOCK_SIZE]
 bulletsArr = []
 
 stage = new Kinetic.Stage
@@ -133,6 +134,8 @@ imageObj.onload = ->
     animation: 'canon'
     animations: animations
     frameRate: 1
+    width: 15 * BLOCK_SIZE
+    height: 8 * BLOCK_SIZE
 
   canonLayer.add(canon)
   stage.add(canonLayer)
@@ -148,6 +151,8 @@ imageObj.onload = ->
         animation: alienStrArr[num1]
         animations: animations
         frameRate: 2
+        width: aliensWidthArr[num1]
+        height: 8 * BLOCK_SIZE
       )
 
   aliensLayer.add(aliensGroup)
@@ -155,7 +160,8 @@ imageObj.onload = ->
 
   # start aliens sprite animation
   for alien in aliensGroup.getChildren()
-    console.log(alien.getPosition())
+
+    console.log(alien.getHeight())
     alien.start()
 
   stage.add(aliensLayer)
@@ -167,24 +173,21 @@ canonAnimation = new Kinetic.Animation (frame) ->
       switch event.keyCode
         # left arrow / a
         when 37, 65
-          #canon.move(-canonSpeed, 0)
           moveCanon(-canonSpeed)
         # right arrow / d
         when 39, 68
-          #canon.move(canonSpeed, 0)
           moveCanon(canonSpeed)
         # space bar
         when 32
           #canon.shoot()
-          console.log("pew")
-          #new Bullet(canon.getPosition().x, canon.getPosition().y)
-          shootNewBullet(canon.getPosition().x, canon.getPosition().y)
+          shootNewBullet(canon.getPosition().x + canon.getWidth() / 2 - BLOCK_SIZE / 2, canon.getPosition().y)
 
 
     for bullet in bulletsArr
       bullet.move(0, -bulletSpeed)
       #bullet.checkAlienCol()
 
+    checkBulletCol()
 
 aliensAnimation = new Kinetic.Animation (frame) ->
   if frame.time - startTime > 500
@@ -230,27 +233,15 @@ shootNewBullet = (x, y) ->
   bulletsArr.push(bullet)
   canonLayer.add(bullet)
 
-class Bullet
-  constructor: (@x, @y) ->
-    @bullet = new Kinetic.Rect
-      x: @x
-      y: @y
-      width: BLOCK_SIZE
-      height: 4 * BLOCK_SIZE
-      fill: "#FFCCCC"
-    canonLayer.add(@bullet)
-    bulletsArr.push(@bullet)
-    @index = bulletsArr.length - 1
+checkBulletCol = ->
+  index = 0
+  for bullet in bulletsArr
+    # bullet is outside of the screen
+    if bullet && bullet.getPosition().y < 0
+      bulletsArr.splice(index, 1)
+      bullet.remove()
 
-  move: (speed) ->
-    if @bullet
-      @bullet.move(0, speed)
+    # check if bullet hit an alien
 
-  checkAlienCol: ->
-    for alien in aliensGroup.getChildren()
-      if (@bullet.getPosition().x > alien.getPosition().x + aliensGroup.getPosition().x) && (@bullet.getPosition().x < alien.getPosition().x + aliensGroup.getPosition().x + 12 * BLOCK_SIZE)
-        if (@bullet.getPosition().y > alien.getPosition().y + aliensGroup.getPosition().y) && (@bullet.getPosition().y < alien.getPosition().y + aliensGroup.getPosition().y + 8 * BLOCK_SIZE)
-          alien.remove()
-          @bullet.remove()
-          break
-
+    else
+      index++
