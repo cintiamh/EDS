@@ -19,18 +19,16 @@ aliensGroupLimits =
   maxX: -1
   minY: -1
   maxY: -1
-aliensGroupExt = { x: -1, y: -1 }
 startTime = 0
 aliensCount = 0
 
 # speeds
-alienMovPause = 1
+alienMovPause = 500
 canonSpeed = 15
 bulletSpeed = 15
 
 alienStrArr = ['alien03', 'alien02', 'alien02', 'alien01', 'alien01']
 aliensWidthArr = [8 * BLOCK_SIZE, 11 * BLOCK_SIZE, 11 * BLOCK_SIZE, 12 * BLOCK_SIZE, 12 * BLOCK_SIZE]
-aliensArr = []
 bulletsArr = []
 
 stage = new Kinetic.Stage
@@ -197,7 +195,7 @@ canonAnimation = new Kinetic.Animation (frame) ->
     checkBulletCol()
 
 aliensAnimation = new Kinetic.Animation (frame) ->
-  if frame.time - startTime > 500
+  if frame.time - startTime > alienMovPause
     startTime = frame.time
     moveAliensBlock()
 
@@ -232,10 +230,6 @@ resetAliensGroupLimits = ->
     minY: -1
     maxY: -1
 
-moveAliens = (dirX, dirY) ->
-  for alien in aliensArr
-    alien.move(dirX, dirY)
-
 changeAlienDirection = ->
   alienMoveDirection *= -1
 
@@ -259,7 +253,6 @@ shootNewBullet = (x, y) ->
   #canonLayer.add(bullet)
 
 checkBulletCol = ->
-  index = 0
   for bullet in bulletsGroup.getChildren() # bulletsArr
     # bullet is outside of the screen
     if bullet && bullet.getPosition().y < -BORDER
@@ -277,13 +270,5 @@ checkBulletCol = ->
             checkAliensMinMax()
             bullet.destroy()
             #removeBulletFromArray(index)
+            console.log(aliensGroup.getChildren().length)
             break
-
-    else
-      index++
-###
-removeBulletFromArray = (index) ->
-  bullet = bulletsArr[index]
-  bulletsArr.splice(index, 1)
-  bullet.remove()
-###
