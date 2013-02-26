@@ -12,8 +12,13 @@ alienSideMove = 2 * BLOCK_SIZE
 alienDownMove = 6 * BLOCK_SIZE
 alienWidth = 12 * BLOCK_SIZE
 alienMoveDirection = 1
-aliensGroupStartPos = { x: -1, y: -1 }
-aliensGroupEndPos = { x: -1, y: -1 }
+#aliensGroupStartPos = { x: -1, y: -1 }
+#aliensGroupEndPos = { x: -1, y: -1 }
+aliensGroupLimits =
+  minX: -1
+  maxX: -1
+  minY: -1
+  maxY: -1
 aliensGroupExt = { x: -1, y: -1 }
 startTime = 0
 aliensCount = 0
@@ -154,6 +159,7 @@ imageObj.onload = ->
         frameRate: 2
         width: aliensWidthArr[num1]
         height: 8 * BLOCK_SIZE
+        visible: true
       )
 
   aliensLayer.add(aliensGroup)
@@ -162,6 +168,8 @@ imageObj.onload = ->
   # start aliens sprite animation
   for alien in aliensGroup.getChildren()
     alien.start()
+
+  checkAliensMinMax()
 
   stage.add(aliensLayer)
 
@@ -186,7 +194,7 @@ canonAnimation = new Kinetic.Animation (frame) ->
       if bullet
         bullet.move(0, -bulletSpeed)
 
-    checkBulletCol()
+    #checkBulletCol()
 
 aliensAnimation = new Kinetic.Animation (frame) ->
   if frame.time - startTime > 500
@@ -198,21 +206,37 @@ aliensAnimation.start()
 
 # Moves the whole block of aliens, calculates the max and min width and height
 moveAliensBlock = ->
-  for alien in aliensGroup.getChildren()
-    if aliensGroupStartPos.x < 0 || aliensGroupStartPos.x > alien.getPosition().x
-      aliensGroupStartPos.x = alien.getPosition().x
-    if aliensGroupStartPos.y < 0 || aliensGroupStartPos.y > alien.getPosition().y
-      aliensGroupStartPos.y = alien.getPosition().y
-    if aliensGroupEndPos.x < 0 || aliensGroupEndPos.x < alien.getPosition().x
-      aliensGroupEndPos.x = alien.getPosition().x
-    if aliensGroupEndPos.y < 0 || aliensGroupEndPos.y < alien.getPosition().y
-      aliensGroupEndPos.y = alien.getPosition().y
-
-  if (alienMoveDirection > 0 && (aliensGroupEndPos.x + alienWidth + aliensGroup.getPosition().x + BORDER) >= WIDTH) || (alienMoveDirection < 0 && (aliensGroupStartPos.x + aliensGroup.getPosition().x) <= BORDER)
+  if (alienMoveDirection > 0 && (aliensGroupLimits.maxX + alienWidth + aliensGroup.getX() + BORDER) >= WIDTH) || (alienMoveDirection < 0 && (aliensGroupLimits.minX + aliensGroup.getX()) <= BORDER)
     aliensGroup.move(0, alienDownMove)
     changeAlienDirection()
   else
     aliensGroup.move(alienSideMove * alienMoveDirection, 0)
+
+checkAliensMinMax = ->
+  resetAliensGroupLimits()
+  for alien in aliensGroup.getChildren()
+    if alien && alien.isVisible()
+      if aliensGroupLimits.minX < 0 || aliensGroupLimits.minX > alien.getX()
+        aliensGroupLimits.minX = alien.getX()
+      if aliensGroupLimits.minY < 0 || aliensGroupLimits.minY > alien.getY()
+        aliensGroupLimits.minY = alien.getY()
+      if aliensGroupLimits.maxX < 0 || aliensGroupLimits.maxX < alien.getX()
+        aliensGroupLimits.maxX = alien.getX()
+      if aliensGroupLimits.maxY < 0 || aliensGroupLimits.maxY < alien.getY()
+        aliensGroupLimits.maxY = alien.getY()
+
+  console.log(aliensGroupLimits)
+
+resetAliensGroupLimits = ->
+  aliensGroupLimits =
+    minX: -1
+    maxX: -1
+    minY: -1
+    maxY: -1
+
+moveAliens = (dirX, dirY) ->
+  for alien in aliensArr
+    alien.move(dirX, dirY)
 
 changeAlienDirection = ->
   alienMoveDirection *= -1
