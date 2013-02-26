@@ -190,11 +190,11 @@ canonAnimation = new Kinetic.Animation (frame) ->
           shootNewBullet(canon.getPosition().x + canon.getWidth() / 2 - BLOCK_SIZE / 2, canon.getPosition().y)
 
     # moving bullet animation
-    for bullet in bulletsArr
+    for bullet in bulletsGroup.getChildren() #bulletsArr
       if bullet
         bullet.move(0, -bulletSpeed)
 
-    #checkBulletCol()
+    checkBulletCol()
 
 aliensAnimation = new Kinetic.Animation (frame) ->
   if frame.time - startTime > 500
@@ -225,8 +225,6 @@ checkAliensMinMax = ->
       if aliensGroupLimits.maxY < 0 || aliensGroupLimits.maxY < alien.getY()
         aliensGroupLimits.maxY = alien.getY()
 
-  console.log(aliensGroupLimits)
-
 resetAliensGroupLimits = ->
   aliensGroupLimits =
     minX: -1
@@ -248,40 +246,44 @@ moveCanon = (speed) ->
     canon.move(speed, 0)
 
 shootNewBullet = (x, y) ->
-  bullet = new Kinetic.Rect
+  #bullet = new Kinetic.Rect
+  bulletsGroup.add(new Kinetic.Rect
     x: x
     y: y
     width: BLOCK_SIZE
     height: 4 * BLOCK_SIZE
     fill: "#FFCCCC"
-  bulletsArr.push(bullet)
-  canonLayer.add(bullet)
+  )
+  canonLayer.add(bulletsGroup)
+  #bulletsArr.push(bullet)
+  #canonLayer.add(bullet)
 
 checkBulletCol = ->
   index = 0
-  for bullet in bulletsArr
+  for bullet in bulletsGroup.getChildren() # bulletsArr
     # bullet is outside of the screen
     if bullet && bullet.getPosition().y < -BORDER
-      removeBulletFromArray(index)
+      #removeBulletFromArray(index)
+      bullet.destroy()
 
     # check if bullet hit an alien
     else if bullet
       for alien in aliensGroup.getChildren()
-        aX = alien.getPosition().x + aliensGroup.getPosition().x
-        aY = alien.getPosition().y + aliensGroup.getPosition().y
-        bX = bullet.getPosition().x
-        bY = bullet.getPosition().y
-
-        if (bX > aX) && (bX + BLOCK_SIZE < aX + alien.getWidth())
-          if (bY > aY) && (bY + 4 * BLOCK_SIZE < aY + alien.getHeight())
-            alien.remove()
-            removeBulletFromArray(index)
+        if bullet.getX() > alien.getX() and bullet.getX() + BLOCK_SIZE < alien.getX() + alien.getWidth()
+          if bullet.getY() > alien.getY() and bullet.getY() + 4 * BLOCK_SIZE < alien.getY() + alien.getHeight()
+            #if alien.isVisible()
+            #alien.setVisible(false)
+            alien.destroy()
+            checkAliensMinMax()
+            bullet.destroy()
+            #removeBulletFromArray(index)
             break
 
     else
       index++
-
+###
 removeBulletFromArray = (index) ->
   bullet = bulletsArr[index]
   bulletsArr.splice(index, 1)
   bullet.remove()
+###
