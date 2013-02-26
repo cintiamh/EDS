@@ -3,19 +3,28 @@ WIDTH_NUM_BLOCKS = 184
 HEIGHT_NUM_BLOCKS = 191
 WIDTH = WIDTH_NUM_BLOCKS * BLOCK_SIZE
 HEIGHT = HEIGHT_NUM_BLOCKS * BLOCK_SIZE
+BORDER = 4 * BLOCK_SIZE
 
 canon = null
 
 # aliens movement
 alienSideMove = 2 * BLOCK_SIZE
 alienDownMove = 6 * BLOCK_SIZE
+alienWidth = 12 * BLOCK_SIZE
+alienMoveDirection = 1
+aliensGroupStartPos = { x: -1, y: -1 }
+aliensGroupEndPos = { x: -1, y: -1 }
+aliensGroupExt = { x: -1, y: -1 }
+startTime = 0
+aliensCount = 0
 
 # speeds
 alienMovPause = 1
 canonSpeed = 15
-bulletSpeed = 20
+bulletSpeed = 15
 
-alienStrArr = ['alien01', 'alien02', 'alien02', 'alien03', 'alien03']
+alienStrArr = ['alien03', 'alien02', 'alien02', 'alien01', 'alien01']
+bulletsArr = []
 
 stage = new Kinetic.Stage
   container: "container"
@@ -112,13 +121,14 @@ bulletsGroup = new Kinetic.Group()
 
 # The image object for the Sprites (aliens, canon, etc)
 imageObj = new Image()
+imageObj.src = "img/aliens_all.png"
 
 imageObj.onload = ->
 
   # Renders the canon
   canon = new Kinetic.Sprite
     x: WIDTH / 2 - 7 * BLOCK_SIZE
-    y: HEIGHT - 8 * BLOCK_SIZE
+    y: HEIGHT - (8 * BLOCK_SIZE + BORDER)
     image: imageObj
     animation: 'canon'
     animations: animations
@@ -132,7 +142,7 @@ imageObj.onload = ->
   for num1 in [0..4]
     for num2 in [0..10]
       aliensGroup.add(new Kinetic.Sprite
-        x: BLOCK_SIZE + num2 * (12 + 2) * BLOCK_SIZE
+        x: num2 * (12 + 2) * BLOCK_SIZE
         y: num1 * (8 + 6) * BLOCK_SIZE
         image: imageObj
         animation: alienStrArr[num1]
@@ -140,13 +150,15 @@ imageObj.onload = ->
         frameRate: 2
       )
 
+  aliensLayer.add(aliensGroup)
+  aliensGroup.setPosition(BORDER, BORDER)
+
+  # start aliens sprite animation
   for alien in aliensGroup.getChildren()
+    console.log(alien.getPosition())
     alien.start()
 
-  aliensLayer.add(aliensGroup)
   stage.add(aliensLayer)
-
-imageObj.src = "img/aliens_all.png"
 
 canonAnimation = new Kinetic.Animation (frame) ->
   if canon
@@ -155,13 +167,90 @@ canonAnimation = new Kinetic.Animation (frame) ->
       switch event.keyCode
         # left arrow / a
         when 37, 65
-          canon.move(-canonSpeed, 0)
+          #canon.move(-canonSpeed, 0)
+          moveCanon(-canonSpeed)
         # right arrow / d
         when 39, 68
-          canon.move(canonSpeed, 0)
+          #canon.move(canonSpeed, 0)
+          moveCanon(canonSpeed)
         # space bar
         when 32
           #canon.shoot()
           console.log("pew")
+          #new Bullet(canon.getPosition().x, canon.getPosition().y)
+          shootNewBullet(canon.getPosition().x, canon.getPosition().y)
+
+
+    for bullet in bulletsArr
+      bullet.move(0, -bulletSpeed)
+      #bullet.checkAlienCol()
+
+
+aliensAnimation = new Kinetic.Animation (frame) ->
+  if frame.time - startTime > 500
+    startTime = frame.time
+    moveAliensBlock()
 
 canonAnimation.start()
+aliensAnimation.start()
+
+moveAliensBlock = ->
+  for alien in aliensGroup.getChildren()
+    if aliensGroupStartPos.x < 0 || aliensGroupStartPos.x > alien.getPosition().x
+      aliensGroupStartPos.x = alien.getPosition().x
+    if aliensGroupStartPos.y < 0 || aliensGroupStartPos.y > alien.getPosition().y
+      aliensGroupStartPos.y = alien.getPosition().y
+    if aliensGroupEndPos.x < 0 || aliensGroupEndPos.x < alien.getPosition().x
+      aliensGroupEndPos.x = alien.getPosition().x
+    if aliensGroupEndPos.y < 0 || aliensGroupEndPos.y < alien.getPosition().y
+      aliensGroupEndPos.y = alien.getPosition().y
+
+  if (alienMoveDirection > 0 && (aliensGroupEndPos.x + alienWidth + aliensGroup.getPosition().x + BORDER) >= WIDTH) || (alienMoveDirection < 0 && (aliensGroupStartPos.x + aliensGroup.getPosition().x) <= BORDER)
+    aliensGroup.move(0, alienDownMove)
+    changeAlienDirection()
+  else
+    aliensGroup.move(alienSideMove * alienMoveDirection, 0)
+
+changeAlienDirection = ->
+  alienMoveDirection *= -1
+
+moveCanon = (speed) ->
+  if speed < 0 && canon.getPosition().x > BORDER * 2
+    canon.move(speed, 0)
+  if speed > 0 && canon.getPosition().x < WIDTH - BORDER - 15 * BLOCK_SIZE
+    canon.move(speed, 0)
+
+shootNewBullet = (x, y) ->
+  bullet = new Kinetic.Rect
+    x: x
+    y: y
+    width: BLOCK_SIZE
+    height: 4 * BLOCK_SIZE
+    fill: "#FFCCCC"
+  bulletsArr.push(bullet)
+  canonLayer.add(bullet)
+
+class Bullet
+  constructor: (@x, @y) ->
+    @bullet = new Kinetic.Rect
+      x: @x
+      y: @y
+      width: BLOCK_SIZE
+      height: 4 * BLOCK_SIZE
+      fill: "#FFCCCC"
+    canonLayer.add(@bullet)
+    bulletsArr.push(@bullet)
+    @index = bulletsArr.length - 1
+
+  move: (speed) ->
+    if @bullet
+      @bullet.move(0, speed)
+
+  checkAlienCol: ->
+    for alien in aliensGroup.getChildren()
+      if (@bullet.getPosition().x > alien.getPosition().x + aliensGroup.getPosition().x) && (@bullet.getPosition().x < alien.getPosition().x + aliensGroup.getPosition().x + 12 * BLOCK_SIZE)
+        if (@bullet.getPosition().y > alien.getPosition().y + aliensGroup.getPosition().y) && (@bullet.getPosition().y < alien.getPosition().y + aliensGroup.getPosition().y + 8 * BLOCK_SIZE)
+          alien.remove()
+          @bullet.remove()
+          break
+
