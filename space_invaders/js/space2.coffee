@@ -6,14 +6,13 @@ HEIGHT = HEIGHT_NUM_BLOCKS * BLOCK_SIZE
 BORDER = 4 * BLOCK_SIZE
 
 canon = null
+explosion = null
 
 # aliens movement
 alienSideMove = 2 * BLOCK_SIZE
 alienDownMove = 6 * BLOCK_SIZE
 alienWidth = 12 * BLOCK_SIZE
 alienMoveDirection = 1
-#aliensGroupStartPos = { x: -1, y: -1 }
-#aliensGroupEndPos = { x: -1, y: -1 }
 aliensGroupLimits =
   minX: -1
   maxX: -1
@@ -21,11 +20,12 @@ aliensGroupLimits =
   maxY: -1
 startTime = 0
 aliensCount = 0
+checkingCol = false
 
 # speeds
 alienMovPause = 500
 canonSpeed = 15
-bulletSpeed = 15
+bulletSpeed = 5
 
 alienStrArr = ['alien03', 'alien02', 'alien02', 'alien01', 'alien01']
 aliensWidthArr = [8 * BLOCK_SIZE, 11 * BLOCK_SIZE, 11 * BLOCK_SIZE, 12 * BLOCK_SIZE, 12 * BLOCK_SIZE]
@@ -118,11 +118,50 @@ animations =
     }
   ]
 
+explosionAnim =
+  idle: [
+    {
+      x: 0
+      y: 0
+      width: 0
+      height: 0
+    }
+  ]
+  explosion: [
+    {
+      x: 5
+      y: 3
+      width: 32
+      height: 33
+    }
+    {
+      x: 42
+      y: 3
+      width: 30
+      height: 33
+    }
+    {
+      x: 79
+      y: 3
+      width: 33
+      height: 33
+    }
+    {
+      x: 121
+      y: 3
+      width: 33
+      height: 33
+    }
+  ]
+
 # The group of aliens that moves in a block
 aliensGroup = new Kinetic.Group()
 
 # Group for the bullets
 bulletsGroup = new Kinetic.Group()
+
+# Group of explosions
+explosionsGroup = new Kinetic.Group()
 
 # The image object for the Sprites (aliens, canon, etc)
 imageObj = new Image()
@@ -157,7 +196,6 @@ imageObj.onload = ->
         frameRate: 2
         width: aliensWidthArr[num1]
         height: 8 * BLOCK_SIZE
-        visible: true
       )
 
   aliensLayer.add(aliensGroup)
@@ -170,6 +208,23 @@ imageObj.onload = ->
   checkAliensMinMax()
 
   stage.add(aliensLayer)
+
+# The image object for the Sprites (aliens, canon, etc)
+explosionImg = new Image()
+explosionImg.src = "img/explosion.png"
+
+explosionImg.onload = ->
+  # Renders the canon
+  explosion = new Kinetic.Sprite
+    x: WIDTH
+    y: HEIGHT
+    image: explosionImg
+    animation: 'idle'
+    animations: explosionAnim
+    frameRate: 4
+
+  aliensLayer.add(explosion)
+  explosion.start()
 
 canonAnimation = new Kinetic.Animation (frame) ->
   if canon
@@ -240,7 +295,6 @@ moveCanon = (speed) ->
     canon.move(speed, 0)
 
 shootNewBullet = (x, y) ->
-  #bullet = new Kinetic.Rect
   bulletsGroup.add(new Kinetic.Rect
     x: x
     y: y
@@ -249,26 +303,36 @@ shootNewBullet = (x, y) ->
     fill: "#FFCCCC"
   )
   canonLayer.add(bulletsGroup)
-  #bulletsArr.push(bullet)
-  #canonLayer.add(bullet)
 
 checkBulletCol = ->
-  for bullet in bulletsGroup.getChildren() # bulletsArr
-    # bullet is outside of the screen
-    if bullet && bullet.getPosition().y < -BORDER
-      #removeBulletFromArray(index)
-      bullet.destroy()
+    for bullet in bulletsGroup.getChildren()
 
-    # check if bullet hit an alien
-    else if bullet
-      for alien in aliensGroup.getChildren()
-        if bullet.getX() > alien.getX() and bullet.getX() + BLOCK_SIZE < alien.getX() + alien.getWidth()
-          if bullet.getY() > alien.getY() and bullet.getY() + 4 * BLOCK_SIZE < alien.getY() + alien.getHeight()
-            #if alien.isVisible()
-            #alien.setVisible(false)
-            alien.destroy()
-            checkAliensMinMax()
-            bullet.destroy()
-            #removeBulletFromArray(index)
-            console.log(aliensGroup.getChildren().length)
-            break
+      if !bullet
+        continue
+      else
+        bulletX = bullet.getPosition().x
+        bulletY = bullet.getPosition().y
+        # bullet is oustside of the screen
+        if bulletY <= 0
+          bullet.destroy()
+          continue
+        else if bulletY <= aliensGroupLimits.maxY
+          offsetX = aliensGroup.getPosition().x
+          offsetY = aliensGroup.getPosition().y
+
+          for alien in aliensGroup.getChildren()
+            if alien
+              alienStartX = alien.getPosition().x + offsetX
+              alienStartY = alien.getPosition().y + offsetY
+              alienEndX = alienStartX + alien.getWidth()
+              alienEndY = alienStartY + alien.getHeight()
+              # check bullet and alien collision
+              if bulletX > alienStartX and bulletX < alienEndX
+                if bulletY > alienStartY and bulletY < alienEndY
+                  bullet.destroy()
+                  alien.destroy()
+                  explosion.setPosition(alienStartX, alienStartY)
+                  explosion.setAnimation("explosion")
+                  explosion.afterFrame(1, -> explosion.setAnimation("idle") )
+                  checkAliensMinMax()
+                  break
