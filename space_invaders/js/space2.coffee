@@ -328,7 +328,7 @@ checkBulletCol = ->
               alienEndY = alienStartY + alien.getHeight()
               # check bullet and alien collision
               if bulletX > alienStartX and bulletX < alienEndX
-                if bulletY > alienStartY and bulletY < alienEndY
+                if (bulletY + 4 * BLOCK_SIZE > alienStartY) and (bulletY < alienEndY)
                   bullet.destroy()
                   alien.destroy()
                   explosion.setPosition(alienStartX, alienStartY)

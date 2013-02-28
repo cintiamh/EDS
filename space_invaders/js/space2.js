@@ -371,7 +371,7 @@
                 alienEndX = alienStartX + alien.getWidth();
                 alienEndY = alienStartY + alien.getHeight();
                 if (bulletX > alienStartX && bulletX < alienEndX) {
-                  if (bulletY > alienStartY && bulletY < alienEndY) {
+                  if ((bulletY + 4 * BLOCK_SIZE > alienStartY) && (bulletY < alienEndY)) {
                     bullet.destroy();
                     alien.destroy();
                     explosion.setPosition(alienStartX, alienStartY);
