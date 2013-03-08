@@ -1,0 +1,96 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>Entertainment Design Studio - Presentation 01</title>
+    
+    <meta name="description" content="impress.js is a presentation tool based on the power of CSS3 transforms and transitions in modern browsers and inspired by the idea behind prezi.com." />
+    <meta name="author" content="Cintia Higashi" />
+
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+
+    <link href="../css/impress-demo.css" rel="stylesheet" />
+    
+    <link rel="shortcut icon" href="../favicon.png" />
+    <link rel="apple-touch-icon" href="../apple-touch-icon.png" />
+</head>
+
+<body class="impress-not-supported">
+
+<!--
+    For example this fallback message is only visible when there is `impress-not-supported` class on body.
+-->
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<!--
+    
+    Now that's the core element used by impress.js.
+    
+    That's the wrapper for your presentation steps. In this element all the impress.js magic happens.
+    It doesn't have to be a `<div>`. Only `id` is important here as that's how the script find it.
+    
+    You probably won't need it now, but there are some configuration options that can be set on this element.
+    
+    To change the duration of the transition between slides use `data-transition-duration="2000"` giving it
+    a number of ms. It defaults to 1000 (1s).
+    
+    You can also control the perspective with `data-perspective="500"` giving it a number of pixels.
+    It defaults to 1000. You can set it to 0 if you don't want any 3D effects.
+    If you are willing to change this value make sure you understand how CSS perspective works:
+    https://developer.mozilla.org/en/CSS/perspective
+    
+    But as I said, you won't need it for now, so don't worry - there are some simple but interesing things
+    right around the corner of this tag ;)
+    
+-->
+<div id="impress">
+
+    <div id="bored" class="step slide" data-x="-2000" data-y="-1500">
+        <q>
+            <strong>HTML5 Games</strong>
+        </q>
+        <q>
+            <em>Cintia Higashi</em>
+        </q>
+    </div>
+
+    <div class="step slide" data-x="-1000" data-y="-1500">
+        <q>
+            <strong>Research</strong>
+        </q>
+        <q>
+            Node.js (<a href="http://nodejs.org/">nodejs.org</a>)
+        </q>
+    </div>
+
+    <div class="step slide" data-x="0" data-y="-1500">
+        <q>
+            * Testing Node on local machines.<br>
+            * Tutorials.<br>
+            * Figuring out how I am going to publish it.<br>
+        </q>
+    </div>
+
+    <div class="step slide" data-x="1000" data-y="-1500">
+        <q>
+            <strong>Progress</strong><br>
+            <a href="http://lab.pandajapa.com/eds/asteroids/" target="_blank">http://lab.pandajapa.com/eds/<br>asteroids/</a>
+            <br> <br>
+            <strong>Source</strong><br>
+            <a href="https://github.com/cintiamh/EDS" target="_blank">https://github.com/cintiamh/EDS</a>
+        </q>
+    </div>
+
+</div>
+
+<script src="../js/impress.js"></script>
+<script>impress().init();</script>
+
+</body>
+</html>
