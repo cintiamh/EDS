@@ -1,3 +1,4 @@
+# Constants
 WIDTH = window.innerWidth
 HEIGHT = window.innerHeight
 MAX_SPEED = 5
