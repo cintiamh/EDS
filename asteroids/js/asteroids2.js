@@ -25,6 +25,8 @@
       });
       this.backgroundLayer = new Kinetic.Layer();
       this.backgroundLayer.add(new Kinetic.Rect({
+        x: 0,
+        y: 0,
         width: SCREEN_WIDTH,
         height: SCREEN_HEIGHT,
         fill: '#000000'

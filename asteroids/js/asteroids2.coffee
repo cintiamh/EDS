@@ -18,6 +18,8 @@ class Asteroids
 
     @backgroundLayer = new Kinetic.Layer()
     @backgroundLayer.add(new Kinetic.Rect({
+      x: 0
+      y: 0
       width: SCREEN_WIDTH
       height: SCREEN_HEIGHT
       fill: '#000000'
