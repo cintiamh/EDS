@@ -7,6 +7,8 @@ game.createBackground()
 game.createStars(NUM_STARS)
 game.addShip(WIDTH / 2, HEIGHT / 2)
 
+$(document).ready ->
+  $(document).keydown (e) ->
 
 
 game.start()

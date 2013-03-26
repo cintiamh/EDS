@@ -42,6 +42,10 @@
       return this.acceleration += val;
     };
 
+    Ship.prototype.setRotation = function(val) {
+      return this.rotation = val;
+    };
+
     Ship.prototype.getHypotenuse = function(x, y) {
       return Math.sqrt(x * x + y * y);
     };

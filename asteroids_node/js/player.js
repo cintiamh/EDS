@@ -16,6 +16,10 @@
 
   game.addShip(WIDTH / 2, HEIGHT / 2);
 
+  $(document).ready(function() {
+    return $(document).keydown(function(e) {});
+  });
+
   game.start();
 
 }).call(this);

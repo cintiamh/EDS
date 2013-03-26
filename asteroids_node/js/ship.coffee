@@ -23,6 +23,9 @@ class Game.Ship
   setAcceleration: (val) ->
     @acceleration += val
 
+  setRotation: (val) ->
+    @rotation = val
+
   getHypotenuse: (x, y) ->
     Math.sqrt(x * x + y * y)
 
