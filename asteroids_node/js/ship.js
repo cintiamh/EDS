@@ -25,10 +25,6 @@
       this.acceleration = 0;
       this.setPosition(this.x, this.y);
       this.rotation = 0;
-      this.animation = new Kinetic.Animation(function(frame) {
-        rotate(frame, this.rotation);
-        return moveShip();
-      });
     }
 
     Ship.prototype.setPosition = function(x, y) {
@@ -39,11 +35,13 @@
     };
 
     Ship.prototype.setAcceleration = function(val) {
-      return this.acceleration += val;
+      this.acceleration += val;
+      return console.log("set acceleration " + this.acceleration);
     };
 
     Ship.prototype.setRotation = function(val) {
-      return this.rotation = val;
+      this.rotation = val;
+      return console.log("set rotation " + this.rotation);
     };
 
     Ship.prototype.getHypotenuse = function(x, y) {
@@ -75,10 +73,6 @@
       this.velocity.x = Math.cos(speedAngle) * speed;
       this.velocity.y = Math.sin(speedAngle) * speed;
       return this.ship.move(this.velocity.x, this.velocity.y);
-    };
-
-    Ship.prototype.startAnimation = function() {
-      return this.animation.start();
     };
 
     return Ship;

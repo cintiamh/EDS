@@ -68,15 +68,15 @@ shipAnimation = new Kinetic.Animation((frame) ->
       switch event.keyCode
         # rotate to the left
         when 37, 65
-          rotateShip(frame, -2)
+          rotateShip(frame, -10)
         # up
         when 38, 87
           console.log 'up'
           #ship.move(0,-1)
-          setShipAcceleration(1)
+          setShipAcceleration(.5)
         # rotate to the right
         when 39, 68
-          rotateShip(frame, 2)
+          rotateShip(frame, 10)
         # down
         when 40, 83
           console.log 'down'

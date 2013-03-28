@@ -12,9 +12,7 @@ class Game.Ship
     @acceleration = 0
     @setPosition(@x, @y)
     @rotation = 0
-    @animation = new Kinetic.Animation (frame) ->
-      rotate(frame, @rotation)
-      moveShip()
+    #@animation = null
 
   setPosition: (@x, @y) ->
     @ship.setX(@x)
@@ -22,19 +20,28 @@ class Game.Ship
 
   setAcceleration: (val) ->
     @acceleration += val
+    console.log "set acceleration " + @acceleration
 
   setRotation: (val) ->
     @rotation = val
+    console.log "set rotation " + @rotation
 
   getHypotenuse: (x, y) ->
     Math.sqrt(x * x + y * y)
 
   rotate: (frame, dir) ->
+    #console.log "rotate"
     angularSpeed = Math.PI / 2
     angleDiff = frame.timeDiff * angularSpeed / 1000
     @ship.rotate(dir * angleDiff)
 
+  #createAnimation: ->
+  #  @animation = new Kinetic.Animation (frame) ->
+  #    @rotate(frame, @rotation)
+  #    @moveShip()
+
   moveShip: ->
+    #console.log "move Ship"
     if @acceleration != 0
       movementAngle = @ship.getRotation()
       @velocity.x += Math.cos(movementAngle) * @acceleration
@@ -54,5 +61,5 @@ class Game.Ship
 
     @ship.move(@velocity.x, @velocity.y)
 
-  startAnimation: ->
-    @animation.start()
+  #startAnimation: ->
+  #  @animation.start()

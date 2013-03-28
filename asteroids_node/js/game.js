@@ -13,13 +13,14 @@
         width: this.width,
         height: this.height
       });
-      this.layers = [];
-      this.ships = [];
+      this.backgroundLayer = new Kinetic.Layer;
+      this.starsLayer = new Kinetic.Layer;
+      this.shipLayer = new Kinetic.Layer;
+      this.ship1 = null;
     }
 
     Main.prototype.createBackground = function() {
-      this.layers.push(new Kinetic.Layer);
-      return this.layers[this.layers.length - 1].add(new Kinetic.Rect({
+      return this.backgroundLayer.add(new Kinetic.Rect({
         x: 0,
         y: 0,
         width: this.width,
@@ -30,7 +31,6 @@
 
     Main.prototype.createStars = function(number) {
       var n, starsGroup, _i;
-      this.layers.push(new Kinetic.Layer);
       starsGroup = new Kinetic.Group;
       for (n = _i = 0; 0 <= number ? _i <= number : _i >= number; n = 0 <= number ? ++_i : --_i) {
         starsGroup.add(new Kinetic.Star({
@@ -42,24 +42,19 @@
           fill: "#FFFFAA"
         }));
       }
-      return this.layers[this.layers.length - 1].add(starsGroup);
+      return this.starsLayer.add(starsGroup);
     };
 
     Main.prototype.addShip = function(x, y) {
-      this.layers.push(new Kinetic.Layer);
-      this.ships.push(new Game.Ship(x, y));
-      return this.layers[this.layers.length - 1].add(this.ships[this.ships.length - 1].ship);
+      this.ship1 = new Game.Ship(x, y);
+      this.shipLayer.add(this.ship1.ship);
+      return this.ship1;
     };
 
     Main.prototype.start = function() {
-      var layer, _i, _len, _ref, _results;
-      _ref = this.layers;
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        layer = _ref[_i];
-        _results.push(this.stage.add(layer));
-      }
-      return _results;
+      this.stage.add(this.backgroundLayer);
+      this.stage.add(this.starsLayer);
+      return this.stage.add(this.shipLayer);
     };
 
     return Main;
