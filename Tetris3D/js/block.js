@@ -3,42 +3,31 @@
   window.Tetris = {};
 
   Tetris.Block = (function() {
-    function Block(x, y, z) {
-      this.x = x;
-      this.y = y;
-      this.z = z;
-      this.color = 0xFF0000;
-      this.active = false;
-      this.cube = null;
+    function Block(size) {
+      this.size = size;
+      this.moving = false;
+      this.static_colors = [0x0000FF, 0x3333FF, 0x6565FF, 0x9999FF, 0xB2B2FF, 0xCBCBFF, 0xE5E5FF, 0xE5FFE5, 0xCBFFCB, 0xB2FFB2, 0x99FF99, 0x65FF65, 0x33FF33, 0x00FF00];
+      this.moving_color = [0xFFFFFF];
+      this.cube = new THREE.SceneUtils.createMultiMaterialObject(new THREE.CubeGeometry(this.size, this.size, this.size), [
+        new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF,
+          wireframe: true,
+          transparent: true
+        }), new THREE.MeshBasicMaterial({
+          color: 0xFF0000,
+          transparent: true,
+          opacity: 0.5
+        })
+      ]);
+      console.log(this.cube);
     }
 
     Block.prototype.setColor = function(color) {
       return this.color = color;
     };
 
-    Block.prototype.draw = function() {
-      this.active = true;
-      this.cube = new THREE.SceneUtils.createMultiMaterialObject(new THREE.CubeGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), [
-        new THREE.MeshBasicMaterial({
-          color: 0xFFAA00,
-          wireframe: true,
-          transparent: true
-        }), new THREE.MeshBasicMaterial({
-          color: this.color
-        })
-      ]);
-      this.calculate_pos();
-      return scene.add(this.cube);
-    };
-
     Block.prototype.print = function() {
       return console.log(this.cube.position.x + ", " + this.cube.position.y + ", " + this.cube.position.z);
-    };
-
-    Block.prototype.calculate_pos = function() {
-      this.cube.position.x = (TABLE_WIDTH / 2 + (this.x - (TABLE_WIDTH - 0.5))) * BLOCK_SIZE;
-      this.cube.position.y = -(TABLE_HEIGHT / 2 + (this.y - (TABLE_HEIGHT - 0.5))) * BLOCK_SIZE;
-      return this.cube.position.z = (this.z - TABLE_DEPTH / 2 + 0.5) * BLOCK_SIZE;
     };
 
     Block.prototype.erase = function() {
