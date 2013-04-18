@@ -8,6 +8,11 @@ WIDTH = BLOCK_SIZE * TABLE_WIDTH
 HEIGHT = BLOCK_SIZE * TABLE_HEIGHT
 DEPTH = BLOCK_SIZE * TABLE_DEPTH
 
+MAX_DEPTH = -0.5 * BLOCK_SIZE
+MIN_DEPTH = -14.5 * BLOCK_SIZE
+MAX_SIDE = 3 * BLOCK_SIZE
+MIN_SIDE = -3 * BLOCK_SIZE
+
 # Camera Attributes
 VIEW_ANGLE = 45
 ASPECT = WIDTH / HEIGHT
@@ -59,14 +64,16 @@ createMovingBlock = (x, y, z) ->
     ]
   )
   scene.add(block)
-  block.position.z = (z - 0.5) * BLOCK_SIZE
+  block.position.z = z * BLOCK_SIZE
   block.position.x = x * BLOCK_SIZE
   block.position.y = y * BLOCK_SIZE
   block
 
 createSolidBlock = (x, y, z) ->
-  static_colors = [0x00FFFF, 0x0000FF, 0x3333FF, 0x6565FF, 0x9999FF, 0xB2B2FF, 0xCBCBFF, 0xE5E5FF,
-                   0xE5FFE5, 0xCBFFCB, 0xB2FFB2, 0x99FF99, 0x65FF65, 0x33FF33, 0x00FF00]
+  static_colors = [
+    0xFFFFFF, 0xC0C0C0, 0x800000, 0xFF0000, 0x800000, 0xFFFF00, 0x808000,
+    0x00FF00, 0x008000, 0x00FFFF, 0x008080, 0x0000FF, 0x000080, 0xFF00FF, 0x800080
+  ]
   block2 = new THREE.SceneUtils.createMultiMaterialObject(
     new THREE.CubeGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
     [
@@ -79,7 +86,6 @@ createSolidBlock = (x, y, z) ->
   block2.position.y = y
   block2.position.z = z
   static_blocks.push(block2)
-  console.log static_blocks
 
 createShape = ->
   random_index = Math.floor(shapes.length * Math.random())
@@ -87,67 +93,134 @@ createShape = ->
   shape = new THREE.Object3D()
   for cube in shapes[random_index]
     shape.add(createMovingBlock(cube.x, cube.y, cube.z))
+  shape.position.z -= 0.5 * BLOCK_SIZE
   scene.add(shape)
 
 moveShape = (value_x, value_y) ->
-  if isInsideBox(value_x, value_y)
+  #if isInsideBox(value_x, value_y)
+  if canShapeMove(value_x, value_y, 0)
     shape.position.x = shape.position.x + value_x * BLOCK_SIZE
     shape.position.y = shape.position.y + value_y * BLOCK_SIZE
 
 moveShapeBack = ->
-  unless gotToBottom()
+  if canShapeMove(0, 0, -1)
     shape.position.z = shape.position.z - BLOCK_SIZE
+  else
+    # freeze and destroy shape
+    convertShapeToSolidBlocks()
+    # verifies completed level
+    checkCompletedLevel()
+    # verifies game over
+    if checkGameOver()
+      console.log "Game Over"
+    else
+    # create a new shape
+      createShape()
 
-isInsideBox = (move_x, move_y) ->
+canShapeMove = (move_x, move_y, move_z) ->
   for cube in shape.children
-    pos_x = cube.position.x + shape.position.x
-    pos_y = cube.position.y + shape.position.y
-    if move_x < 0 && pos_x <= -3 * BLOCK_SIZE
+    pos_x = cube.position.x + shape.position.x + move_x * BLOCK_SIZE
+    pos_y = cube.position.y + shape.position.y + move_y * BLOCK_SIZE
+    pos_z = cube.position.z + shape.position.z + move_z * BLOCK_SIZE
+    solid_block = _.find(static_blocks, (block) -> return block.position.x == pos_x && block.position.y == pos_y && block.position.z == pos_z)
+    if solid_block
       return false
-    else if move_x > 0 && pos_x >= 3 * BLOCK_SIZE
+    # checks if reached bottom
+    else if pos_z < MIN_DEPTH
       return false
-    if move_y < 0 && pos_y <= -3 * BLOCK_SIZE
+    else if pos_x < MIN_SIDE || pos_x > MAX_SIDE
       return false
-    else if move_y > 0 && pos_y >= 3 * BLOCK_SIZE
+    else if pos_y < MIN_SIDE || pos_y > MAX_SIDE
       return false
   true
 
-gotToBottom = ->
+convertShapeToSolidBlocks = ->
   for cube in shape.children
-    pos_z = cube.position.z + shape.position.z - BLOCK_SIZE
-    # check if reached the bottom of table
-    if pos_z < -14.5 * BLOCK_SIZE
-      return true
-    # check if collided with a solid cube
-    neighbor = _.find(static_blocks, (block) -> return block.position.x == cube.position.x && block.position.y == cube.position.y && block.position.z == cube.position.z)
-    if neighbor
-      return true
+    createSolidBlock(cube.position.x + shape.position.x, cube.position.y + shape.position.y, cube.position.z + shape.position.z)
+  scene.remove(shape)
+
+checkGameOver = ->
+  outbound_block = _.find(static_blocks, (block) -> return block.position.z > -0.5 * BLOCK_SIZE)
+  if outbound_block
+    return true
   false
 
+rotateShape = (dirx, diry, dirz) ->
+  unless dirx == 0
+    for cube in shape.children
+      temp = cube.position.y
+      cube.position.y = -1 * cube.position.z
+      cube.position.z = temp
 
-#block1 = createMovingBlock()
-block2 = createSolidBlock(BLOCK_SIZE * 3, BLOCK_SIZE * 3, -14.5 * BLOCK_SIZE)
-block3 = createSolidBlock(BLOCK_SIZE * 3, BLOCK_SIZE * 3, -0.5 * BLOCK_SIZE)
-createShape()
-console.log shape
+  unless diry == 0
+    for cube in shape.children
+      temp = cube.position.x
+      cube.position.x = cube.position.z
+      cube.position.z = -1 * temp
+
+  unless dirz == 0
+    for cube in shape.children
+      temp = cube.position.x
+      cube.position.x = -1 * cube.position.y
+      cube.position.y = temp
+
+checkCompletedLevel = ->
+  level = MIN_DEPTH
+  while level < MAX_DEPTH
+    level_arr = _.filter(static_blocks, (block) -> return block if block.position.z == level)
+    break if level_arr.length == 0
+    if level_arr.length >= TABLE_HEIGHT * TABLE_WIDTH
+      eliminateCompletedLevel(level)
+    else
+      level = level + BLOCK_SIZE
+
+eliminateCompletedLevel = (level) ->
+  level_arr = _.filter(static_blocks, (block) -> return block if block.position.z == level)
+  above_arr = _.filter(static_blocks, (block) -> return block if block.position.z > level)
+  for cube in level_arr
+    console.log static_blocks.indexOf(cube)
+    #scene.remove(cube)
+  for cube in above_arr
+    #cube.position.z -= BLOCK_SIZE
+    console.log "above"
+
 
 window.$(document).ready ->
   window.$(document).keydown (e) ->
     switch e.keyCode
-      when 37, 65
-      # left arrow - a
+      # left arrow
+      when 37
         moveShape(-1, 0)
-      when 38, 87
-      # up arrow - w
+      # up arrow
+      when 38
         moveShape(0, 1)
-      when 39, 68
-      # right arrow - d
+      # right arrow
+      when 39
         moveShape(1, 0)
+      # down arrow
       when 40
-        #down arrow
         moveShape(0, -1)
+      # space bar
       when 32
         moveShapeBack()
+      # q
+      when 81
+        rotateShape(1, 0, 0)
+      # w
+      when 87
+        rotateShape(0, 1, 0)
+      # e
+      when 69
+        rotateShape(0, 0, 1)
+      # a
+      when 65
+        rotateShape(-1, 0, 0)
+      # s
+      when 83
+        rotateShape(0, -1, 0)
+      # d
+      when 68
+        rotateShape(0, 0, -1)
 
 
 # Rendering scene
@@ -158,3 +231,4 @@ render = ->
   renderer.render(scene, camera)
 
 render()
+createShape()
