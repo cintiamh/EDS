@@ -14,8 +14,26 @@ ASPECT = WIDTH / HEIGHT
 NEAR = 0.1
 FAR = 10000
 
+# instantiated shape
+shape = null
+
 # array of static blocks
 static_blocks = []
+
+shapes = [
+  # bar
+  [{x:0, y:-1, z:0}, {x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:0, y:2, z:0}]
+  # mountain
+  [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:0, y:1, z:0}]
+  # L
+  [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:-1, y:1, z:0}]
+  # S
+  [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:1, y:1, z:0}]
+  # 3D shapes
+  [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:-1, z:0}, {x:0, y:-1, z:1}]
+  [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:0, y:1, z:1}]
+  [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:-1, z:0}, {x:0, y:0, z:1}]
+]
 
 # Creating basic structure for Three.js
 scene = new THREE.Scene()
@@ -32,7 +50,7 @@ boundingBox = new THREE.Mesh(
 )
 scene.add(boundingBox)
 
-createMovingBlock = ->
+createMovingBlock = (x, y, z) ->
   block = new THREE.SceneUtils.createMultiMaterialObject(
     new THREE.CubeGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
     [
@@ -41,7 +59,9 @@ createMovingBlock = ->
     ]
   )
   scene.add(block)
-  block.position.z = -0.5 * BLOCK_SIZE
+  block.position.z = (z - 0.5) * BLOCK_SIZE
+  block.position.x = x * BLOCK_SIZE
+  block.position.y = y * BLOCK_SIZE
   block
 
 createSolidBlock = (x, y, z) ->
@@ -58,45 +78,76 @@ createSolidBlock = (x, y, z) ->
   block2.position.x = x
   block2.position.y = y
   block2.position.z = z
-  block2
+  static_blocks.push(block2)
+  console.log static_blocks
 
-moveBlockX = (block, value) ->
-  temp = block.position.x + value * BLOCK_SIZE
-  if temp >= -3 * BLOCK_SIZE && temp <= 3 * BLOCK_SIZE
-    block.position.x = temp
+createShape = ->
+  random_index = Math.floor(shapes.length * Math.random())
+  scene.remove(shape)
+  shape = new THREE.Object3D()
+  for cube in shapes[random_index]
+    shape.add(createMovingBlock(cube.x, cube.y, cube.z))
+  scene.add(shape)
 
-moveBlockY = (block, value) ->
-  temp = block.position.y + value * BLOCK_SIZE
-  if temp >= -3 * BLOCK_SIZE && temp <= 3 * BLOCK_SIZE
-    block.position.y = temp
+moveShape = (value_x, value_y) ->
+  if isInsideBox(value_x, value_y)
+    shape.position.x = shape.position.x + value_x * BLOCK_SIZE
+    shape.position.y = shape.position.y + value_y * BLOCK_SIZE
 
-moveBlockZ = (block) ->
-  temp = block.position.z - BLOCK_SIZE
-  if temp >= -14.5 * BLOCK_SIZE
-    block.position.z = temp
+moveShapeBack = ->
+  unless gotToBottom()
+    shape.position.z = shape.position.z - BLOCK_SIZE
+
+isInsideBox = (move_x, move_y) ->
+  for cube in shape.children
+    pos_x = cube.position.x + shape.position.x
+    pos_y = cube.position.y + shape.position.y
+    if move_x < 0 && pos_x <= -3 * BLOCK_SIZE
+      return false
+    else if move_x > 0 && pos_x >= 3 * BLOCK_SIZE
+      return false
+    if move_y < 0 && pos_y <= -3 * BLOCK_SIZE
+      return false
+    else if move_y > 0 && pos_y >= 3 * BLOCK_SIZE
+      return false
+  true
+
+gotToBottom = ->
+  for cube in shape.children
+    pos_z = cube.position.z + shape.position.z - BLOCK_SIZE
+    # check if reached the bottom of table
+    if pos_z < -14.5 * BLOCK_SIZE
+      return true
+    # check if collided with a solid cube
+    neighbor = _.find(static_blocks, (block) -> return block.position.x == cube.position.x && block.position.y == cube.position.y && block.position.z == cube.position.z)
+    if neighbor
+      return true
+  false
 
 
-block1 = createMovingBlock()
+#block1 = createMovingBlock()
 block2 = createSolidBlock(BLOCK_SIZE * 3, BLOCK_SIZE * 3, -14.5 * BLOCK_SIZE)
 block3 = createSolidBlock(BLOCK_SIZE * 3, BLOCK_SIZE * 3, -0.5 * BLOCK_SIZE)
+createShape()
+console.log shape
 
 window.$(document).ready ->
   window.$(document).keydown (e) ->
     switch e.keyCode
       when 37, 65
       # left arrow - a
-        moveBlockX(block1, -1)
+        moveShape(-1, 0)
       when 38, 87
       # up arrow - w
-        moveBlockY(block1, 1)
+        moveShape(0, 1)
       when 39, 68
       # right arrow - d
-        moveBlockX(block1, 1)
+        moveShape(1, 0)
       when 40
         #down arrow
-        moveBlockY(block1, -1)
+        moveShape(0, -1)
       when 32
-        moveBlockZ(block1)
+        moveShapeBack()
 
 
 # Rendering scene
