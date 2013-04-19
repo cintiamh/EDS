@@ -6,14 +6,23 @@
     <link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
 </head>
 <body>
-<h1>Tetris 3D</h1>
-<div id="canvas"></div>
+<div id="wrapper">
+    <h1>Tetris 3D</h1>
+    <div id="canvas"></div>
+    <div>Score: <span id="score">0</span></div>
+    <h2>Controls</h2>
+    <ul>
+        <li>Arrows: move around X and Y axis</li>
+        <li>Space bar: drop faster into pit</li>
+        <li>Q: rotate around X axis</li>
+        <li>W: rotate around Y axis</li>
+        <li>E: rotate around Z axis</li>
+    </ul>
+</div>
 
 <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>
 <script type="text/javascript" src="lib/three.min.js"></script>
 <script type="text/javascript" src="lib/underscore-min.js"></script>
-<script type="text/javascript" src="js/block.js"></script>
-<script type="text/javascript" src="js/shape.js"></script>
 <script type="text/javascript" src="js/game.js"></script>
 </body>
 </html>

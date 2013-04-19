@@ -25,6 +25,11 @@ shape = null
 # array of static blocks
 static_blocks = []
 
+level = 0
+intervals = [1000, 900, 800, 700, 600, 500, 400, 300, 200, 100]
+timer = 0
+points = 0
+
 shapes = [
   # bar
   [{x:0, y:-1, z:0}, {x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:0, y:2, z:0}]
@@ -38,6 +43,10 @@ shapes = [
   [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:-1, z:0}, {x:0, y:-1, z:1}]
   [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:0, y:1, z:1}]
   [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:-1, z:0}, {x:0, y:0, z:1}]
+]
+static_colors = [
+  0xFFFFFF, 0xC0C0C0, 0x800000, 0xFF0000, 0x800000, 0xFFFF00, 0x808000,
+  0x00FF00, 0x008000, 0x00FFFF, 0x008080, 0x0000FF, 0x000080, 0xFF00FF, 0x800080
 ]
 
 # Creating basic structure for Three.js
@@ -70,10 +79,6 @@ createMovingBlock = (x, y, z) ->
   block
 
 createSolidBlock = (x, y, z) ->
-  static_colors = [
-    0xFFFFFF, 0xC0C0C0, 0x800000, 0xFF0000, 0x800000, 0xFFFF00, 0x808000,
-    0x00FF00, 0x008000, 0x00FFFF, 0x008080, 0x0000FF, 0x000080, 0xFF00FF, 0x800080
-  ]
   block2 = new THREE.SceneUtils.createMultiMaterialObject(
     new THREE.CubeGeometry(BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
     [
@@ -165,25 +170,31 @@ rotateShape = (dirx, diry, dirz) ->
       cube.position.y = temp
 
 checkCompletedLevel = ->
-  level = MIN_DEPTH
-  while level < MAX_DEPTH
-    level_arr = _.filter(static_blocks, (block) -> return block if block.position.z == level)
-    break if level_arr.length == 0
+  level = MIN_DEPTH / BLOCK_SIZE
+  num_levels = (MAX_DEPTH - MIN_DEPTH) / BLOCK_SIZE
+  for num in [0..num_levels]
+    level_arr = _.filter(static_blocks, (block) -> return block if block.position.z == level * BLOCK_SIZE)
     if level_arr.length >= TABLE_HEIGHT * TABLE_WIDTH
+      addPoints(50)
       eliminateCompletedLevel(level)
     else
-      level = level + BLOCK_SIZE
+      level = level + 1
 
 eliminateCompletedLevel = (level) ->
-  level_arr = _.filter(static_blocks, (block) -> return block if block.position.z == level)
-  above_arr = _.filter(static_blocks, (block) -> return block if block.position.z > level)
+  level_arr = _.filter(static_blocks, (block) -> return block if block.position.z == level * BLOCK_SIZE)
+  above_arr = _.filter(static_blocks, (block) -> return block if block.position.z > level * BLOCK_SIZE)
   for cube in level_arr
-    console.log static_blocks.indexOf(cube)
-    #scene.remove(cube)
+    indexOfCube = static_blocks.indexOf(cube)
+    static_blocks.splice(indexOfCube, 1)
+    scene.remove(cube)
   for cube in above_arr
-    #cube.position.z -= BLOCK_SIZE
-    console.log "above"
+    cube.position.z -= BLOCK_SIZE
+    cube.children[1].material.color.setHex(static_colors[Math.floor(Math.abs(cube.position.z) / BLOCK_SIZE)])
 
+addPoints = (n) ->
+  points += n
+  level = Math.floor(points/1000)
+  document.getElementById("score").innerHTML = points
 
 window.$(document).ready ->
   window.$(document).keydown (e) ->
@@ -230,5 +241,10 @@ render = ->
   requestAnimationFrame(render)
   renderer.render(scene, camera)
 
-render()
 createShape()
+render()
+
+unless checkGameOver()
+  setInterval(moveShapeBack, intervals[level])
+
+
