@@ -36,13 +36,13 @@ shapes = [
   # mountain
   [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:0, y:1, z:0}]
   # L
-  [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:-1, y:1, z:0}]
+  [{x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:1, y:0, z:0}, {x:2, y:0, z:0}]
   # S
   [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:1, y:1, z:0}]
   # 3D shapes
-  [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:-1, z:0}, {x:0, y:-1, z:1}]
-  [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:0, y:1, z:1}]
-  [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:-1, z:0}, {x:0, y:0, z:1}]
+  [{x:-1, y:0, z:-1}, {x:0, y:0, z:-1}, {x:0, y:-1, z:-1}, {x:0, y:-1, z:0}]
+  [{x:-1, y:0, z:-1}, {x:0, y:0, z:-1}, {x:0, y:1, z:-1}, {x:0, y:1, z:0}]
+  [{x:-1, y:0, z:-1}, {x:0, y:0, z:-1}, {x:0, y:-1, z:-1}, {x:0, y:0, z:0}]
 ]
 static_colors = [
   0xFFFFFF, 0xC0C0C0, 0x800000, 0xFF0000, 0x800000, 0xFFFF00, 0x808000,
@@ -169,6 +169,25 @@ rotateShape = (dirx, diry, dirz) ->
       cube.position.x = -1 * cube.position.y
       cube.position.y = temp
 
+  calculateExcess()
+
+calculateExcess = ->
+  excess = {x: 0, y: 0}
+  max_value = 3 * BLOCK_SIZE
+  for cube in shape.children
+    pos_x = cube.position.x + shape.position.x
+    pos_y = cube.position.y + shape.position.y
+    if Math.abs(pos_x) > max_value
+      excess.x = Math.abs(pos_x) - max_value
+      if pos_x > 0
+        excess.x = -1 * excess.x
+    if Math.abs(pos_y) > max_value
+      excess.y = Math.abs(pos_y) - max_value
+      if pos_y > 0
+        excess.y = -1 * excess.y
+  shape.position.x = shape.position.x + excess.x
+  shape.position.y = shape.position.y + excess.y
+
 checkCompletedLevel = ->
   level = MIN_DEPTH / BLOCK_SIZE
   num_levels = (MAX_DEPTH - MIN_DEPTH) / BLOCK_SIZE
@@ -181,8 +200,9 @@ checkCompletedLevel = ->
       level = level + 1
 
 eliminateCompletedLevel = (level) ->
-  level_arr = _.filter(static_blocks, (block) -> return block if block.position.z == level * BLOCK_SIZE)
-  above_arr = _.filter(static_blocks, (block) -> return block if block.position.z > level * BLOCK_SIZE)
+  pos_z = MIN_DEPTH - level * BLOCK_SIZE
+  level_arr = _.filter(static_blocks, (block) -> return block if block.position.z == pos_z)
+  above_arr = _.filter(static_blocks, (block) -> return block if block.position.z > pos_z)
   for cube in level_arr
     indexOfCube = static_blocks.indexOf(cube)
     static_blocks.splice(indexOfCube, 1)
@@ -247,4 +267,14 @@ render()
 unless checkGameOver()
   setInterval(moveShapeBack, intervals[level])
 
+  ###
+for num1 in [-3..3]
+  for num2 in [-3..3]
+    createSolidBlock(num1 * BLOCK_SIZE, num2 * BLOCK_SIZE, -14.5 * BLOCK_SIZE)
 
+for num1 in [-3..3]
+  for num2 in [-3..3]
+    createSolidBlock(num1 * BLOCK_SIZE, num2 * BLOCK_SIZE, -13.5 * BLOCK_SIZE)
+
+
+###
