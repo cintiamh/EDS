@@ -1,36 +1,68 @@
-WIDTH = 800
-HEIGHT = 600
-NUM_STARS = 200
+window.Game = {
+  WIDTH: 800
+  HEIGHT: 600
+  NUM_STARS: 200
 
-game = new Game.Main(WIDTH, HEIGHT)
-game.createBackground()
-game.createStars(NUM_STARS)
-ship = game.addShip(WIDTH / 2, HEIGHT / 2)
+  SHIP_MAX_VEL: 4
+  SHIP_DRAG: 0.01
+}
 
-window.$(document).ready ->
-  window.$(document).keydown (e) ->
-    switch e.keyCode
-      when 37, 65
-        # left arrow - a
-        ship.setRotation(-10)
-      when 38, 87
-        # up arrow - w
-        ship.setAcceleration(.5)
-      when 39, 68
-        # right arrow - d
-        ship.setRotation(10)
+ship = null
 
-    e.preventDefault()
+document.onkeydown = (event) ->
+  switch event.keyCode
+    # rotate to the left
+    when 37, 65
+      ship.setRotation(-1)
+    # up
+    when 38, 87
+      ship.setAcceleration(.2)
+    # rotate to the right
+    when 39, 68
+      ship.setRotation(1)
+    # down
+    when 40, 83
+      console.log 'down'
+    # space bar
+    when 32
+      console.log 'pew'
+    else
+      ship.endThrust()
 
+  event.preventDefault()
+
+document.onkeyup = (event) ->
+  switch event.keyCode
+    when 38, 87
+      ship.endThrust()
+  # rotate to the left
+    when 37, 65
+      ship.setRotation(0)
+  # rotate to the right
+    when 39, 68
+      ship.setRotation(0)
+
+window.onload = ->
+  imageObj = new Image()
+  imageObj.src = 'images/double_ship.png'
+  game = new Game.Main(Game.WIDTH, Game.HEIGHT)
+  game.createBackground()
+  game.createStars(Game.NUM_STARS)
+  imageObj.onload = ->
+    ship = new Game.Ship(Game.WIDTH/2, Game.HEIGHT/2, imageObj)
+    game.shipLayer.add(ship.ship_obj)
+    ship.ship_obj.start()
+    console.log ship.ship_obj.getOffset()
   game.start()
 
-  shipAnim = new Kinetic.Animation((frame) ->
-    if game.ship1
-      game.ship1.rotate(frame, game.ship1.rotation)
-      game.ship1.moveShip()
-      console.log game.ship1.ship.getPosition()
-    game.shipLayer)
+  anim_loop = new Kinetic.Animation( (frame) ->
+    time = frame.time
+    timeDiff = frame.timeDiff
+    frameRate = frame.frameRate
+    if ship
+      ship.moveShip()
+      ship.rotate(frame)
+      ship.fixPosition()
+  game.shipLayer)
 
-  shipAnim.start()
-  #ship.createAnimation()
-  #ship.startAnimation()
+  anim_loop.start()

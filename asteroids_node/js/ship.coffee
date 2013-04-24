@@ -1,65 +1,81 @@
 class Game.Ship
-  constructor: (@x, @y, color = "#42B4E6") ->
-    @max_speed = 4
-    @drag = 0.01
-    @ship = new Kinetic.Group
-    @ship.add new Kinetic.Polygon
-      points:[-15, -10, 15, 0, -15, 10]
-      sides: 3
-      radius: 10
-      fill: color
+  constructor: (@x, @y, @imageObj) ->
+    animations = {
+      idle: [{
+        x: 3
+        y: 12
+        width: 80
+        height: 65
+      }]
+      thrust: [{
+        x: 95
+        y: 12
+        width: 80
+        height: 65
+      }]
+    }
+    @ship_obj = new Kinetic.Sprite({
+      x: @x
+      y: @y
+      image: imageObj
+      animation: 'idle'
+      animations: animations
+      frameRate: 7
+      index: 0
+    })
+    @ship_obj.setOffset(40, 30)
     @velocity = { x: 0, y: 0 }
     @acceleration = 0
-    @setPosition(@x, @y)
     @rotation = 0
-    #@animation = null
+    @bullets = []
 
-  setPosition: (@x, @y) ->
-    @ship.setX(@x)
-    @ship.setY(@y)
+  setThrust: ->
+    @ship_obj.setAnimation('thrust')
+
+  endThrust: ->
+    @ship_obj.setAnimation('idle')
 
   setAcceleration: (val) ->
     @acceleration += val
-    console.log "set acceleration " + @acceleration
+    @setThrust()
 
   setRotation: (val) ->
     @rotation = val
-    console.log "set rotation " + @rotation
 
   getHypotenuse: (x, y) ->
     Math.sqrt(x * x + y * y)
 
-  rotate: (frame, dir) ->
-    #console.log "rotate"
+  rotate: (frame) ->
     angularSpeed = Math.PI / 2
     angleDiff = frame.timeDiff * angularSpeed / 1000
-    @ship.rotate(dir * angleDiff)
-
-  #createAnimation: ->
-  #  @animation = new Kinetic.Animation (frame) ->
-  #    @rotate(frame, @rotation)
-  #    @moveShip()
+    @ship_obj.rotate(@rotation * angleDiff)
 
   moveShip: ->
-    #console.log "move Ship"
     if @acceleration != 0
-      movementAngle = @ship.getRotation()
+      movementAngle = @ship_obj.getRotation()
       @velocity.x += Math.cos(movementAngle) * @acceleration
       @velocity.y += Math.sin(movementAngle) * @acceleration
       @acceleration = 0
 
     speed = @getHypotenuse(@velocity.x, @velocity.y)
 
-    if speed > @max_speed
-      speed = @max_speed
+    if speed > Game.SHIP_MAX_VEL
+      speed = Game.SHIP_MAX_VEL
     else if speed > 0
-      speed -= @drag
+      speed -= Game.SHIP_DRAG
 
     speedAngle = Math.atan2(@velocity.y, @velocity.x)
     @velocity.x = Math.cos(speedAngle) * speed
     @velocity.y = Math.sin(speedAngle) * speed
 
-    @ship.move(@velocity.x, @velocity.y)
+    @ship_obj.move(@velocity.x, @velocity.y)
 
-  #startAnimation: ->
-  #  @animation.start()
+  fixPosition: ->
+    if @ship_obj.getX() <= 0
+      @ship_obj.setX(Game.WIDTH)
+    else if @ship_obj.getX() >= Game.WIDTH
+      @ship_obj.setX(0)
+    if @ship_obj.getY() <= 0
+      @ship_obj.setY(Game.HEIGHT)
+    else if @ship_obj.getY() >= Game.HEIGHT
+      @ship_obj.setY(0)
