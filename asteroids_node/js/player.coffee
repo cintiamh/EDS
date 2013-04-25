@@ -5,9 +5,11 @@ window.Game = {
 
   SHIP_MAX_VEL: 4
   SHIP_DRAG: 0.01
+  BULLET_SPEED: 5
 }
 
 ship = null
+game = null
 
 document.onkeydown = (event) ->
   switch event.keyCode
@@ -25,7 +27,7 @@ document.onkeydown = (event) ->
       console.log 'down'
     # space bar
     when 32
-      console.log 'pew'
+      ship.createBullet(game.shipLayer)
     else
       ship.endThrust()
 
@@ -63,6 +65,8 @@ window.onload = ->
       ship.moveShip()
       ship.rotate(frame)
       ship.fixPosition()
+      ship.moveBullets()
+      ship.checkBullets()
   game.shipLayer)
 
   anim_loop.start()

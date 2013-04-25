@@ -28,6 +28,7 @@ class Game.Ship
     @acceleration = 0
     @rotation = 0
     @bullets = []
+    @rocks = []
 
   setThrust: ->
     @ship_obj.setAnimation('thrust')
@@ -79,3 +80,36 @@ class Game.Ship
       @ship_obj.setY(Game.HEIGHT)
     else if @ship_obj.getY() >= Game.HEIGHT
       @ship_obj.setY(0)
+
+  createBullet: (layer) ->
+    bullet = new Kinetic.Rect({
+      x: @ship_obj.getX()
+      y: @ship_obj.getY()
+      width: 8
+      height: 4
+      fill: '#00FFFF'
+    })
+    bullet.setRotation(@ship_obj.getRotation())
+    bullet.move(Math.cos(@ship_obj.getRotation()) * 40, Math.sin(@ship_obj.getRotation()) * 40)
+    layer.add(bullet)
+    @bullets.push(bullet)
+
+  moveBullets: ->
+    for bullet in @bullets
+      if bullet
+        bullet.move(Math.cos(bullet.getRotation()) * Game.BULLET_SPEED, Math.sin(bullet.getRotation()) * Game.BULLET_SPEED)
+
+  # Check if bullet is out of the screen
+  checkBullets: ->
+    for bullet in @bullets
+      if bullet && @isBulletOutside(bullet)
+        @bullets.splice(@bullets.indexOf(bullet), 1)
+        bullet.destroy()
+
+  isBulletOutside: (bullet) ->
+    if bullet.getX() < 0 || bullet.getX() > Game.WIDTH
+      return true
+    if bullet.getY() < 0 || bullet.getY() > Game.HEIGHT
+      return true
+    false
+

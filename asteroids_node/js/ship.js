@@ -42,6 +42,7 @@
       this.acceleration = 0;
       this.rotation = 0;
       this.bullets = [];
+      this.rocks = [];
     }
 
     Ship.prototype.setThrust = function() {
@@ -105,6 +106,65 @@
       } else if (this.ship_obj.getY() >= Game.HEIGHT) {
         return this.ship_obj.setY(0);
       }
+    };
+
+    Ship.prototype.createBullet = function(layer) {
+      var bullet;
+
+      bullet = new Kinetic.Rect({
+        x: this.ship_obj.getX(),
+        y: this.ship_obj.getY(),
+        width: 8,
+        height: 4,
+        fill: '#00FFFF'
+      });
+      bullet.setRotation(this.ship_obj.getRotation());
+      bullet.move(Math.cos(this.ship_obj.getRotation()) * 40, Math.sin(this.ship_obj.getRotation()) * 40);
+      layer.add(bullet);
+      return this.bullets.push(bullet);
+    };
+
+    Ship.prototype.moveBullets = function() {
+      var bullet, _i, _len, _ref, _results;
+
+      _ref = this.bullets;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        bullet = _ref[_i];
+        if (bullet) {
+          _results.push(bullet.move(Math.cos(bullet.getRotation()) * Game.BULLET_SPEED, Math.sin(bullet.getRotation()) * Game.BULLET_SPEED));
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    Ship.prototype.checkBullets = function() {
+      var bullet, _i, _len, _ref, _results;
+
+      _ref = this.bullets;
+      _results = [];
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        bullet = _ref[_i];
+        if (bullet && this.isBulletOutside(bullet)) {
+          this.bullets.splice(this.bullets.indexOf(bullet), 1);
+          _results.push(bullet.destroy());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    Ship.prototype.isBulletOutside = function(bullet) {
+      if (bullet.getX() < 0 || bullet.getX() > Game.WIDTH) {
+        return true;
+      }
+      if (bullet.getY() < 0 || bullet.getY() > Game.HEIGHT) {
+        return true;
+      }
+      return false;
     };
 
     return Ship;
