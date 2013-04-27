@@ -113,3 +113,21 @@ class Game.Ship
       return true
     false
 
+  createRock: (x, y, imgObj) ->
+    animations = {
+      idle:[{
+        x: 0
+        y: 0
+        width: 90
+        height: 90
+      }]
+    }
+    rock = new Kinetic.Sprite({
+      x: x
+      y: y
+      image: imgObj
+      animation: 'idle'
+      animations: animations
+      frameRate: 7
+      index: 0
+    })
