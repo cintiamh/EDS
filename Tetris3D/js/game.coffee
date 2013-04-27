@@ -30,6 +30,8 @@ intervals = [1000, 900, 800, 700, 600, 500, 400, 300, 200, 100]
 timer = 0
 points = 0
 
+game_over = false
+
 shapes = [
   # bar
   [{x:0, y:-1, z:0}, {x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:0, y:2, z:0}]
@@ -39,10 +41,12 @@ shapes = [
   [{x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:1, y:0, z:0}, {x:2, y:0, z:0}]
   # S
   [{x:-1, y:0, z:0}, {x:0, y:0, z:0}, {x:0, y:1, z:0}, {x:1, y:1, z:0}]
+  # square
+  [{x:0, y:0, z:0}, {x:1, y:0, z:0}, {x:0, y:1, z:0}, {x:1, y:1, z:0}]
   # 3D shapes
-  [{x:-1, y:0, z:-1}, {x:0, y:0, z:-1}, {x:0, y:-1, z:-1}, {x:0, y:-1, z:0}]
-  [{x:-1, y:0, z:-1}, {x:0, y:0, z:-1}, {x:0, y:1, z:-1}, {x:0, y:1, z:0}]
-  [{x:-1, y:0, z:-1}, {x:0, y:0, z:-1}, {x:0, y:-1, z:-1}, {x:0, y:0, z:0}]
+  #[{x:-1, y:0, z:-1}, {x:0, y:0, z:-1}, {x:0, y:-1, z:-1}, {x:0, y:-1, z:0}]
+  #[{x:-1, y:0, z:-1}, {x:0, y:0, z:-1}, {x:0, y:1, z:-1}, {x:0, y:1, z:0}]
+  #[{x:-1, y:0, z:-1}, {x:0, y:0, z:-1}, {x:0, y:-1, z:-1}, {x:0, y:0, z:0}]
 ]
 static_colors = [
   0xFFFFFF, 0xC0C0C0, 0x800000, 0xFF0000, 0x800000, 0xFFFF00, 0x808000,
@@ -108,19 +112,17 @@ moveShape = (value_x, value_y) ->
     shape.position.y = shape.position.y + value_y * BLOCK_SIZE
 
 moveShapeBack = ->
-  if canShapeMove(0, 0, -1)
+  if checkGameOver()
+    return false
+  else if canShapeMove(0, 0, -1)
     shape.position.z = shape.position.z - BLOCK_SIZE
   else
     # freeze and destroy shape
     convertShapeToSolidBlocks()
     # verifies completed level
     checkCompletedLevel()
-    # verifies game over
-    if checkGameOver()
-      console.log "Game Over"
-    else
     # create a new shape
-      createShape()
+    createShape()
 
 canShapeMove = (move_x, move_y, move_z) ->
   for cube in shape.children
@@ -145,9 +147,10 @@ convertShapeToSolidBlocks = ->
   scene.remove(shape)
 
 checkGameOver = ->
-  outbound_block = _.find(static_blocks, (block) -> return block.position.z > -0.5 * BLOCK_SIZE)
-  if outbound_block
-    return true
+  for cube in static_blocks
+    if cube.position.z >= -0.5 * BLOCK_SIZE
+      game_over = true
+      return true
   false
 
 rotateShape = (dirx, diry, dirz) ->
@@ -194,7 +197,7 @@ checkCompletedLevel = ->
   for num in [0..num_levels]
     level_arr = _.filter(static_blocks, (block) -> return block if block.position.z == level * BLOCK_SIZE)
     if level_arr.length >= TABLE_HEIGHT * TABLE_WIDTH
-      addPoints(50)
+      addPoints(100)
       eliminateCompletedLevel(level)
     else
       level = level + 1
@@ -215,6 +218,18 @@ addPoints = (n) ->
   points += n
   level = Math.floor(points/1000)
   document.getElementById("score").innerHTML = points
+
+restartGame = ->
+  level = 0
+  timer = 0
+  points = 0
+  for cube in static_blocks
+    scene.remove(cube)
+  static_blocks = []
+  scene.remove(shape)
+  shape = null
+  game_over = false
+  createShape()
 
 window.$(document).ready ->
   window.$(document).keydown (e) ->
@@ -252,7 +267,9 @@ window.$(document).ready ->
       # d
       when 68
         rotateShape(0, 0, -1)
+    e.preventDefault()
 
+document.getElementById("restartBtn").addEventListener("click", restartGame, false)
 
 # Rendering scene
 camera.position.z = DEPTH - 54 - BLOCK_SIZE * 6;
@@ -264,17 +281,4 @@ render = ->
 createShape()
 render()
 
-unless checkGameOver()
-  setInterval(moveShapeBack, intervals[level])
-
-  ###
-for num1 in [-3..3]
-  for num2 in [-3..3]
-    createSolidBlock(num1 * BLOCK_SIZE, num2 * BLOCK_SIZE, -14.5 * BLOCK_SIZE)
-
-for num1 in [-3..3]
-  for num2 in [-3..3]
-    createSolidBlock(num1 * BLOCK_SIZE, num2 * BLOCK_SIZE, -13.5 * BLOCK_SIZE)
-
-
-###
+setInterval(moveShapeBack, intervals[level])
