@@ -6,10 +6,12 @@ window.Game = {
   SHIP_MAX_VEL: 4
   SHIP_DRAG: 0.01
   BULLET_SPEED: 5
+  ROCK_SPEED: 2
 }
 
 ship = null
 game = null
+rocks_arr = []
 
 document.onkeydown = (event) ->
   switch event.keyCode
@@ -50,12 +52,22 @@ window.onload = ->
   game = new Game.Main(Game.WIDTH, Game.HEIGHT)
   game.createBackground()
   game.createStars(Game.NUM_STARS)
+  game.start()
   imageObj.onload = ->
     ship = new Game.Ship(Game.WIDTH/2, Game.HEIGHT/2, imageObj)
     game.shipLayer.add(ship.ship_obj)
     ship.ship_obj.start()
     console.log ship.ship_obj.getOffset()
-  game.start()
+
+  rockImage = new Image()
+  rockImage.src = 'images/asteroid_blue.png'
+  rockImage.onload = ->
+    rock = new Game.Rock(50, 50, rockImage)
+    rock.rock_obj.setAnimation('idle')
+    game.shipLayer.add(rock.rock_obj)
+    rock.rock_obj.start()
+    rocks_arr.push(rock)
+
 
   anim_loop = new Kinetic.Animation( (frame) ->
     time = frame.time

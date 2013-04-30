@@ -8,7 +8,9 @@ class Game.Main
     @backgroundLayer = new Kinetic.Layer
     @starsLayer = new Kinetic.Layer
     @shipLayer = new Kinetic.Layer
+    @rocksLayer = new Kinetic.Layer
     @ship = null
+    @rocks_arr = []
 
   createBackground: ->
     @backgroundLayer.add new Kinetic.Rect
@@ -31,8 +33,6 @@ class Game.Main
         fill: "#FFFFAA"
     @starsLayer.add starsGroup
 
-
-
   addShip: (x, y) ->
     @ship1 = new Game.Ship(x, y)
     @shipLayer.add(@ship1.ship)
@@ -42,5 +42,12 @@ class Game.Main
     @stage.add(@backgroundLayer)
     @stage.add(@starsLayer)
     @stage.add(@shipLayer)
+    @stage.add(@rocksLayer)
+
+  addRock: (x, y, imageObj) ->
+    rock = new Game.Rock(x, y, imageObj)
+    @rocksLayer.add(rock)
+    @rocks_arr.push(rock)
+    rock.rock_obj.start()
 
 

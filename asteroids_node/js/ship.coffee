@@ -28,7 +28,6 @@ class Game.Ship
     @acceleration = 0
     @rotation = 0
     @bullets = []
-    @rocks = []
 
   setThrust: ->
     @ship_obj.setAnimation('thrust')
@@ -112,22 +111,3 @@ class Game.Ship
     if bullet.getY() < 0 || bullet.getY() > Game.HEIGHT
       return true
     false
-
-  createRock: (x, y, imgObj) ->
-    animations = {
-      idle:[{
-        x: 0
-        y: 0
-        width: 90
-        height: 90
-      }]
-    }
-    rock = new Kinetic.Sprite({
-      x: x
-      y: y
-      image: imgObj
-      animation: 'idle'
-      animations: animations
-      frameRate: 7
-      index: 0
-    })

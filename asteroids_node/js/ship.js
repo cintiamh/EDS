@@ -42,7 +42,6 @@
       this.acceleration = 0;
       this.rotation = 0;
       this.bullets = [];
-      this.rocks = [];
     }
 
     Ship.prototype.setThrust = function() {
@@ -165,30 +164,6 @@
         return true;
       }
       return false;
-    };
-
-    Ship.prototype.createRock = function(x, y, imgObj) {
-      var animations, rock;
-
-      animations = {
-        idle: [
-          {
-            x: 0,
-            y: 0,
-            width: 90,
-            height: 90
-          }
-        ]
-      };
-      return rock = new Kinetic.Sprite({
-        x: x,
-        y: y,
-        image: imgObj,
-        animation: 'idle',
-        animations: animations,
-        frameRate: 7,
-        index: 0
-      });
     };
 
     return Ship;

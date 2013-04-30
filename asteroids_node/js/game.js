@@ -12,7 +12,9 @@
       this.backgroundLayer = new Kinetic.Layer;
       this.starsLayer = new Kinetic.Layer;
       this.shipLayer = new Kinetic.Layer;
+      this.rocksLayer = new Kinetic.Layer;
       this.ship = null;
+      this.rocks_arr = [];
     }
 
     Main.prototype.createBackground = function() {
@@ -51,7 +53,17 @@
     Main.prototype.start = function() {
       this.stage.add(this.backgroundLayer);
       this.stage.add(this.starsLayer);
-      return this.stage.add(this.shipLayer);
+      this.stage.add(this.shipLayer);
+      return this.stage.add(this.rocksLayer);
+    };
+
+    Main.prototype.addRock = function(x, y, imageObj) {
+      var rock;
+
+      rock = new Game.Rock(x, y, imageObj);
+      this.rocksLayer.add(rock);
+      this.rocks_arr.push(rock);
+      return rock.rock_obj.start();
     };
 
     return Main;
