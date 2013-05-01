@@ -22,8 +22,15 @@ aliensSideMove = 2 * BLOCK_SIZE
 aliensDownMove = 6 * BLOCK_SIZE
 alienStrArr = ['alien03', 'alien02', 'alien02', 'alien01', 'alien01']
 aliensWidthArr = [8 * BLOCK_SIZE, 11 * BLOCK_SIZE, 11 * BLOCK_SIZE, 12 * BLOCK_SIZE, 12 * BLOCK_SIZE]
+
 start_time = 0
+points = 0
+
+# Flags
 game_over = false
+go_left = false
+go_right = false
+shoot = false
 
 # Setting up Kinetic Stage:
 stage = new Kinetic.Stage
@@ -165,6 +172,24 @@ imageObj.onload = ->
   canon.start()
 
   # Create a new group of aliens
+  #for num1 in [0..4]
+  #  for num2 in [0..10]
+  #    new_alien = new Kinetic.Sprite
+  #      x: num2 * (12 + 2) * BLOCK_SIZE
+  #      y: num1 * (8 + 6) * BLOCK_SIZE
+  #      image: imageObj
+  #      animation: alienStrArr[num1]
+  #      animations: animations
+  #      frameRate: 2
+  #      width: aliensWidthArr[num1]
+  #      height: 8 * BLOCK_SIZE
+  #    aliensLayer.add(new_alien)
+  #    new_alien.start()
+  #    aliensArr.push(new_alien)
+  #moveAliens(BORDER, BORDER)
+  createAliens()
+
+createAliens = ->
   for num1 in [0..4]
     for num2 in [0..10]
       new_alien = new Kinetic.Sprite
@@ -202,13 +227,16 @@ document.onkeydown = (event) ->
   switch event.keyCode
     # left arrow / a
     when 37, 65
-      moveCanon(-1)
+      #moveCanon(-1)
+      go_left = true
     # right arrow / d
     when 39, 68
-      moveCanon(1)
+      #moveCanon(1)
+      go_right = true
     # space bar
     when 32
-      shootBullet()
+      #shootBullet()
+      shoot = true
   event.preventDefault()
 
 # Canon and bullets functions
@@ -242,6 +270,15 @@ removeBullet = (bullet) ->
     bulletsArr.splice(index, 1)
 
 bulletsAnimation = new Kinetic.Animation (frame) ->
+  if go_left
+    go_left = false
+    moveCanon(-1)
+  if go_right
+    go_right = false
+    moveCanon(1)
+  if shoot
+    shoot = false
+    shootBullet()
   checkBulletsOut()
   for bullet in bulletsArr
     if bullet
@@ -296,13 +333,16 @@ checkBulletCol = (bullet) ->
       explosion.afterFrame(1, -> explosion.setAnimation("idle"))
       removeAlien(alien)
       removeBullet(bullet)
+      addScore()
   )
 
 aliensAnimation = new Kinetic.Animation (frame) ->
   #console.log frame.time
+  checkGameOver()
   if game_over
     aliensAnimation.stop()
-  if start_time == 0 || frame.time - start_time > alienMovPause
+    clearGame()
+  else if start_time == 0 || frame.time - start_time > alienMovPause
     animateAliens()
     start_time = frame.time
 
@@ -321,3 +361,32 @@ checkGameOver = ->
     else if alien_y_max > HEIGHT
       game_over = true
   )
+
+clearGame = ->
+  _.each(aliensArr, (alien) ->
+    alien.destroy()
+  )
+  aliensArr = []
+
+startGame = ->
+  console.log "start game"
+  clearGame()
+  aliensDirection = 1
+  start_time = 0
+  points = 0
+  alienMovPause = 500
+  scoreStr.innerText = points
+  game_over = false
+  go_left = false
+  go_right = false
+  shoot = false
+  createAliens()
+
+addScore = ->
+  points += 10
+  scoreStr.innerText = points
+
+restartBtn = document.getElementById("restart_btn")
+restartBtn.addEventListener("click", startGame, false)
+
+scoreStr = document.getElementById("score")

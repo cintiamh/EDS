@@ -1,0 +1,28 @@
+body {
+    color: #333333;
+    font-family: Arial;
+}
+
+#wrapper {
+    width: 900px;
+    margin: 10px auto;
+}
+
+#main_content {
+    float: left;
+    padding-top: 40px;
+}
+
+#sidebar {
+    width: 300px;
+    float: left;
+    padding-left: 15px;
+    padding-top: 20px;
+}
+
+a {
+    padding: 10px 20px;
+    background-color: #CCCCCC;
+    text-decoration: none;
+    color: #333333;
+}
