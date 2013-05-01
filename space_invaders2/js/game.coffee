@@ -174,22 +174,6 @@ imageObj.onload = ->
   stage.add(aliensLayer)
   canon.start()
 
-  # Create a new group of aliens
-  #for num1 in [0..4]
-  #  for num2 in [0..10]
-  #    new_alien = new Kinetic.Sprite
-  #      x: num2 * (12 + 2) * BLOCK_SIZE
-  #      y: num1 * (8 + 6) * BLOCK_SIZE
-  #      image: imageObj
-  #      animation: alienStrArr[num1]
-  #      animations: animations
-  #      frameRate: 2
-  #      width: aliensWidthArr[num1]
-  #      height: 8 * BLOCK_SIZE
-  #    aliensLayer.add(new_alien)
-  #    new_alien.start()
-  #    aliensArr.push(new_alien)
-  #moveAliens(BORDER, BORDER)
   createAliens()
 
 createAliens = ->
