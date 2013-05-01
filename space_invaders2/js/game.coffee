@@ -14,6 +14,8 @@ bulletsArr = []
 # canon values
 canon_vel = 15
 bullet_vel = 5
+bullet_interval = 300
+shoot_time = 0
 
 # aliens values
 aliensDirection = 1
@@ -31,6 +33,7 @@ game_over = false
 go_left = false
 go_right = false
 shoot = false
+can_shoot = false
 
 # Setting up Kinetic Stage:
 stage = new Kinetic.Stage
@@ -276,9 +279,14 @@ bulletsAnimation = new Kinetic.Animation (frame) ->
   if go_right
     go_right = false
     moveCanon(1)
-  if shoot
+  if can_shoot && shoot
     shoot = false
+    can_shoot = false
+    shoot_time = frame.time
     shootBullet()
+  difference = frame.time - shoot_time
+  if difference > bullet_interval
+    can_shoot = true
   checkBulletsOut()
   for bullet in bulletsArr
     if bullet
@@ -342,6 +350,7 @@ aliensAnimation = new Kinetic.Animation (frame) ->
   if game_over
     aliensAnimation.stop()
     clearGame()
+    gameOverStr.innerText = "GAME OVER"
   else if start_time == 0 || frame.time - start_time > alienMovPause
     animateAliens()
     start_time = frame.time
@@ -369,17 +378,17 @@ clearGame = ->
   aliensArr = []
 
 startGame = ->
-  console.log "start game"
   clearGame()
   aliensDirection = 1
   start_time = 0
   points = 0
   alienMovPause = 500
-  scoreStr.innerText = points
   game_over = false
   go_left = false
   go_right = false
   shoot = false
+  scoreStr.innerText = points
+  gameOverStr.innerText = ""
   createAliens()
 
 addScore = ->
@@ -390,3 +399,5 @@ restartBtn = document.getElementById("restart_btn")
 restartBtn.addEventListener("click", startGame, false)
 
 scoreStr = document.getElementById("score")
+
+gameOverStr = document.getElementById("game_over")
