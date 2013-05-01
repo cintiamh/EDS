@@ -7,6 +7,7 @@ HEIGHT = HEIGHT_BLOCKS * BLOCK_SIZE
 BORDER = 4 * BLOCK_SIZE
 
 canon = null
+explosion = null
 aliensArr = []
 bulletsArr = []
 
@@ -21,6 +22,8 @@ aliensSideMove = 2 * BLOCK_SIZE
 aliensDownMove = 6 * BLOCK_SIZE
 alienStrArr = ['alien03', 'alien02', 'alien02', 'alien01', 'alien01']
 aliensWidthArr = [8 * BLOCK_SIZE, 11 * BLOCK_SIZE, 11 * BLOCK_SIZE, 12 * BLOCK_SIZE, 12 * BLOCK_SIZE]
+start_time = 0
+game_over = false
 
 # Setting up Kinetic Stage:
 stage = new Kinetic.Stage
@@ -178,6 +181,21 @@ imageObj.onload = ->
       aliensArr.push(new_alien)
   moveAliens(BORDER, BORDER)
 
+explosionImg = new Image()
+explosionImg.src = "images/explosion.png"
+
+explosionImg.onload = ->
+  # Renders the canon
+  explosion = new Kinetic.Sprite
+    x: WIDTH
+    y: HEIGHT
+    image: explosionImg
+    animation: 'idle'
+    animations: explosionAnim
+    frameRate: 4
+
+  aliensLayer.add(explosion)
+  explosion.start()
 
 # Control the Canon
 document.onkeydown = (event) ->
@@ -227,6 +245,7 @@ bulletsAnimation = new Kinetic.Animation (frame) ->
   checkBulletsOut()
   for bullet in bulletsArr
     if bullet
+      checkBulletCol(bullet)
       bullet.move(0, -bullet_vel)
 
 bulletsAnimation.start()
@@ -243,21 +262,62 @@ removeAlien = (alien) ->
     index = aliensArr.indexOf(alien)
     alien.destroy()
     aliensArr.splice(index, 1)
+    alienMovPause -= 10
 
 checkAliensGoDown = ->
+  go_down = false
   _.each(aliensArr, (alien) ->
-    if aliensDirection < 0 && alien.getX() - aliensSideMove < 0
-      return true
-    else if aliensDirection > 0 && alien.getX() + aliensSideMove > WIDTH - 12 * BLOCK_SIZE
-      return true
+    next_pos = alien.getX() + aliensDirection * aliensSideMove
+    if next_pos < BORDER || next_pos + 12 * BLOCK_SIZE > WIDTH - BORDER
+      go_down = true
   )
-  false
+  go_down
 
 animateAliens = ->
   if checkAliensGoDown()
-    direction = -1 * aliensDirection
+    aliensDirection = -1 * aliensDirection
     moveAliens(0, aliensDownMove)
   else
-    moveAliens(aliensSideMove * direction, 0)
+    moveAliens(aliensSideMove * aliensDirection, 0)
 
-setInterval(animateAliens, alienMovPause)
+#timerId = setInterval(animateAliens, alienMovPause)
+
+checkBulletCol = (bullet) ->
+  _.each(aliensArr, (alien) ->
+    bullet_x = bullet.getX()
+    bullet_y = bullet.getY()
+    alien_x_min = alien.getX()
+    alien_y_min = alien.getY()
+    alien_x_max = alien_x_min + alien.getWidth()
+    alien_y_max = alien_y_min + alien.getHeight()
+    if bullet_x > alien_x_min && bullet_x < alien_x_max && bullet_y > alien_y_min && bullet_y < alien_y_max
+      explosion.setPosition(alien_x_min, alien_y_min)
+      explosion.setAnimation("explosion")
+      explosion.afterFrame(1, -> explosion.setAnimation("idle"))
+      removeAlien(alien)
+      removeBullet(bullet)
+  )
+
+aliensAnimation = new Kinetic.Animation (frame) ->
+  #console.log frame.time
+  if game_over
+    aliensAnimation.stop()
+  if start_time == 0 || frame.time - start_time > alienMovPause
+    animateAliens()
+    start_time = frame.time
+
+aliensAnimation.start()
+
+checkGameOver = ->
+  _.each(aliensArr, (alien) ->
+    canon_x = canon.getX()
+    canon_y = canon.getY()
+    alien_x_min = alien.getX()
+    alien_y_min = alien.getY()
+    alien_x_max = alien_x_min + alien.getWidth()
+    alien_y_max = alien_y_min + alien.getHeight()
+    if canon_x + canon.getWidth() > alien_x_min && canon_x < alien_x_max && canon_y + canon.getHeight() > alien_y_min && canon_y < alien_y_max
+      game_over = true
+    else if alien_y_max > HEIGHT
+      game_over = true
+  )
