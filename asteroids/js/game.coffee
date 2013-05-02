@@ -4,7 +4,7 @@ NUM_STARS = 200
 SHIP_MAX_VEL = 4
 SHIP_DRAG = 0.01
 BULLET_SPEED = 5
-ROCK_SPEED = 0.5
+ROCK_SPEED = 1
 ROCK_RADIUS = 40
 
 ship = null
@@ -168,7 +168,8 @@ createRock = (x, y) ->
     rock.start()
     rocks_arr.push(rock)
     angle = Math.random() * Math.PI * 2
-    speed = {x: Math.cos(angle) * ROCK_SPEED, y: Math.sin(angle) * ROCK_SPEED}
+    velocity = Math.random() * 1 + ROCK_SPEED
+    speed = {x: Math.cos(angle) * velocity, y: Math.sin(angle) * velocity }
     rocks_dir.push(speed)
 
 animate_rocks = (frame) ->
@@ -297,7 +298,8 @@ check_bullet_col_asteroids = (bullet) ->
     if distance <= ROCK_RADIUS
       explode_rock(rock, bullet)
       points += 10
-      document.getElementById('score').innerText = "Score " + points
+      $("#score").html("Score: " + points)
+      #document.getElementById('score').innerText = "Score " + points
   )
 
 remove_bullet = (bullet) ->
@@ -324,7 +326,8 @@ explode_rock_ship = (rock) ->
   remove_rock(rock)
   ship.destroy()
   game_over = true
-  document.getElementById("game_over").innerText = "GAME OVER"
+  $("#game_over").html("GAME OVER")
+  #document.getElementById("game_over").innerText = "GAME OVER"
 
 check_ship_col_rock = ->
   if ship

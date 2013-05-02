@@ -14,7 +14,7 @@
 
   BULLET_SPEED = 5;
 
-  ROCK_SPEED = 0.5;
+  ROCK_SPEED = 1;
 
   ROCK_RADIUS = 40;
 
@@ -300,7 +300,7 @@
   };
 
   createRock = function(x, y) {
-    var angle, rock, speed;
+    var angle, rock, speed, velocity;
 
     if (createRocks) {
       rock = new Kinetic.Sprite({
@@ -318,9 +318,10 @@
       rock.start();
       rocks_arr.push(rock);
       angle = Math.random() * Math.PI * 2;
+      velocity = Math.random() * 1 + ROCK_SPEED;
       speed = {
-        x: Math.cos(angle) * ROCK_SPEED,
-        y: Math.sin(angle) * ROCK_SPEED
+        x: Math.cos(angle) * velocity,
+        y: Math.sin(angle) * velocity
       };
       return rocks_dir.push(speed);
     }
@@ -482,7 +483,7 @@
       if (distance <= ROCK_RADIUS) {
         explode_rock(rock, bullet);
         points += 10;
-        return document.getElementById('score').innerText = "Score " + points;
+        return $("#score").html("Score: " + points);
       }
     });
   };
@@ -519,7 +520,7 @@
     remove_rock(rock);
     ship.destroy();
     game_over = true;
-    return document.getElementById("game_over").innerText = "GAME OVER";
+    return $("#game_over").html("GAME OVER");
   };
 
   check_ship_col_rock = function() {
