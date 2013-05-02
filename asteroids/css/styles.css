@@ -7,3 +7,21 @@ body {
 div, canvas  {
     overflow: hidden;
 }
+
+#score {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    color: #FFFFFF;
+    font-family: "Press Start 2P", "Arial";
+    font-size: 1.5em;
+}
+
+#game_over {
+    position: absolute;
+    color: #FFFFFF;
+    font-family: "Press Start 2P", "Arial";
+    font-size: 1.5em;
+    top: 50%;
+    left: 45%;
+}
