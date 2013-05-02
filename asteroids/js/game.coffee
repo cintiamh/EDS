@@ -5,6 +5,7 @@ SHIP_MAX_VEL = 4
 SHIP_DRAG = 0.01
 BULLET_SPEED = 5
 ROCK_SPEED = 2
+ROCK_RADIUS = 40
 
 ship = null
 game = null
@@ -204,6 +205,32 @@ ship_animation = new Kinetic.Animation (frame) ->
     fix_position()
     move_bullets()
     check_bullets()
+    _.each(bullets_arr, (bullet) ->
+      check_bullet_col_asteroids(bullet)
+    )
+
+check_bullet_col_asteroids = (bullet) ->
+  _.each(rocks_arr, (rock) ->
+    distance = get_hypotenuse(bullet.getX() - rock.getX(), bullet.getY() - rock.getY())
+    if distance <= ROCK_RADIUS
+      explode_rock(rock, bullet)
+  )
+
+remove_bullet = (bullet) ->
+  if bullet
+    index = bullets_arr.indexOf(bullet)
+    bullet.destroy()
+    bullets_arr.splice(index, 1)
+
+remove_rock = (rock) ->
+  if rock
+    index = rocks_arr.indexOf(rock)
+    rock.destroy()
+    rocks_arr.splice(index, 1)
+
+explode_rock = (rock, bullet) ->
+  remove_bullet(bullet)
+  remove_rock(rock)
 
 ship_animation.start()
 
