@@ -173,8 +173,7 @@ imageObj.onload = ->
   aliensLayer.add(canon)
   stage.add(aliensLayer)
   canon.start()
-
-  createAliens()
+  startGame()
 
 createAliens = ->
   for num1 in [0..4]
@@ -197,7 +196,6 @@ explosionImg = new Image()
 explosionImg.src = "images/explosion.png"
 
 explosionImg.onload = ->
-  # Renders the canon
   explosion = new Kinetic.Sprite
     x: WIDTH
     y: HEIGHT
@@ -224,6 +222,22 @@ document.onkeydown = (event) ->
     when 32
       #shootBullet()
       shoot = true
+  event.preventDefault()
+
+document.onkeyup = (event) ->
+  switch event.keyCode
+  # left arrow / a
+    when 37, 65
+    #moveCanon(-1)
+      go_left = false
+  # right arrow / d
+    when 39, 68
+    #moveCanon(1)
+      go_right = false
+  # space bar
+    when 32
+    #shootBullet()
+      shoot = false
   event.preventDefault()
 
 # Canon and bullets functions
@@ -258,13 +272,13 @@ removeBullet = (bullet) ->
 
 bulletsAnimation = new Kinetic.Animation (frame) ->
   if go_left
-    go_left = false
-    moveCanon(-1)
+    #go_left = false
+    moveCanon(-0.3)
   if go_right
-    go_right = false
-    moveCanon(1)
+    #go_right = false
+    moveCanon(0.3)
   if can_shoot && shoot
-    shoot = false
+    #shoot = false
     can_shoot = false
     shoot_time = frame.time
     shootBullet()
@@ -329,12 +343,11 @@ checkBulletCol = (bullet) ->
   )
 
 aliensAnimation = new Kinetic.Animation (frame) ->
-  #console.log frame.time
   checkGameOver()
   if game_over
     aliensAnimation.stop()
     clearGame()
-    gameOverStr.innerText = "GAME OVER"
+    $("#game_over").html("GAME OVER")
   else if start_time == 0 || frame.time - start_time > alienMovPause
     animateAliens()
     start_time = frame.time
@@ -343,13 +356,15 @@ aliensAnimation.start()
 
 checkGameOver = ->
   _.each(aliensArr, (alien) ->
-    canon_x = canon.getX()
-    canon_y = canon.getY()
+    canon_x = canon.getX() if canon
+    canon_y = canon.getY() if canon
     alien_x_min = alien.getX()
     alien_y_min = alien.getY()
     alien_x_max = alien_x_min + alien.getWidth()
     alien_y_max = alien_y_min + alien.getHeight()
-    if canon_x + canon.getWidth() > alien_x_min && canon_x < alien_x_max && canon_y + canon.getHeight() > alien_y_min && canon_y < alien_y_max
+    if !canon
+      game_over = false
+    else if canon_x + canon.getWidth() > alien_x_min && canon_x < alien_x_max && canon_y + canon.getHeight() > alien_y_min && canon_y < alien_y_max
       game_over = true
     else if alien_y_max > HEIGHT
       game_over = true
@@ -371,17 +386,12 @@ startGame = ->
   go_left = false
   go_right = false
   shoot = false
-  scoreStr.innerText = points
-  gameOverStr.innerText = ""
+  $("#score").html("0")
+  $("#game_over").html("")
   createAliens()
 
 addScore = ->
   points += 10
-  scoreStr.innerText = points
+  $("#score").html(points)
 
-restartBtn = document.getElementById("restart_btn")
-restartBtn.addEventListener("click", startGame, false)
-
-scoreStr = document.getElementById("score")
-
-gameOverStr = document.getElementById("game_over")
+$("#restart_btn").click(startGame())
