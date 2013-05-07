@@ -475,6 +475,9 @@
     return $("#score").html(points);
   };
 
-  $("#restart_btn").click(startGame());
+  $(document).on('click', '#restart_btn', function(e) {
+    startGame();
+    return e.preventDefault();
+  });
 
 }).call(this);

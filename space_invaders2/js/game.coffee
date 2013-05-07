@@ -394,4 +394,7 @@ addScore = ->
   points += 10
   $("#score").html(points)
 
-$("#restart_btn").click(startGame())
+$(document).on('click', '#restart_btn', (e) ->
+  startGame()
+  e.preventDefault()
+)
