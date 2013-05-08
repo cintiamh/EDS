@@ -355,20 +355,29 @@ aliensAnimation = new Kinetic.Animation (frame) ->
 aliensAnimation.start()
 
 checkGameOver = ->
-  _.each(aliensArr, (alien) ->
-    canon_x = canon.getX() if canon
-    canon_y = canon.getY() if canon
-    alien_x_min = alien.getX()
-    alien_y_min = alien.getY()
-    alien_x_max = alien_x_min + alien.getWidth()
-    alien_y_max = alien_y_min + alien.getHeight()
-    if !canon
-      game_over = false
-    else if canon_x + canon.getWidth() > alien_x_min && canon_x < alien_x_max && canon_y + canon.getHeight() > alien_y_min && canon_y < alien_y_max
-      game_over = true
-    else if alien_y_max > HEIGHT
-      game_over = true
-  )
+  if !game_over && aliensArr.length <= 0
+    aliensDirection = 1
+    alienMovPause = 500
+    game_over = false
+    go_left = false
+    go_right = false
+    shoot = false
+    createAliens()
+  else
+    _.each(aliensArr, (alien) ->
+      canon_x = canon.getX() if canon
+      canon_y = canon.getY() if canon
+      alien_x_min = alien.getX()
+      alien_y_min = alien.getY()
+      alien_x_max = alien_x_min + alien.getWidth()
+      alien_y_max = alien_y_min + alien.getHeight()
+      if !canon
+        game_over = false
+      else if canon_x + canon.getWidth() > alien_x_min && canon_x < alien_x_max && canon_y + canon.getHeight() > alien_y_min && canon_y < alien_y_max
+        game_over = true
+      else if alien_y_max > HEIGHT
+        game_over = true
+    )
 
 clearGame = ->
   _.each(aliensArr, (alien) ->
