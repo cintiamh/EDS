@@ -6,19 +6,28 @@
     <link href='http://fonts.googleapis.com/css?family=Press+Start+2P' rel='stylesheet' type='text/css'>
 </head>
 <body>
+
 <div id="wrapper">
-    <h1>Tetris 3D</h1>
-    <div id="canvas"></div>
-    <div>Score: <span id="score">0</span></div>
-    <div><input type="button" value="Start" id="restartBtn"></div>
-    <h2>Controls</h2>
-    <ul>
-        <li>Arrows: move to left, right, top and bottom</li>
-        <li>Space bar: drop faster into pit</li>
-        <li>Q: rotate around X axis</li>
-        <li>W: rotate around Y axis</li>
-        <li>E: rotate around Z axis</li>
-    </ul>
+    <div id="main_content">
+        <div id="canvas"></div>
+    </div>
+    <div id="sidebar">
+        <h1>Tetris 3D</h1>
+
+        <h2>Score: <span id="score">0</span></h2>
+        <p id="game_over"></p>
+        <div>
+            <input type="button" value="Restart" id="restartBtn">
+        </div>
+        <h2>Controls</h2>
+        <ul>
+            <li>Arrows: move to left, right, top and bottom</li>
+            <li>Space bar: drop faster into pit</li>
+            <li>Q: rotate around X axis</li>
+            <li>W: rotate around Y axis</li>
+            <li>E: rotate around Z axis</li>
+        </ul>
+    </div>
 </div>
 
 <script type="text/javascript" src="lib/jquery-1.9.1.min.js"></script>

@@ -49,23 +49,59 @@ table {
 
 body {
     background-color: #000000;
-    font-family: "Press Start 2P";
+    font-family: Verdana, Arial;
     color: #FFFFFF;
 }
 
 h1 {
+    font-family: "Press Start 2P";
     font-size: 2.5em;
-    padding: 10px 0 5px 0;
+    padding: 20px 0 5px 0;
 }
 
 h2 {
+    font-family: "Press Start 2P";
     font-size: 1.5em;
     padding: 10px 0 5px 0;
 }
 
 #wrapper {
-    width: 900px;
-    display: block;
-    position: relative;
-    margin: 0 auto;
+    width: 1124px;
+    margin: 10px auto;
+}
+
+#main_content {
+    float: left;
+    padding-top: 40px;
+}
+
+#sidebar {
+    width: 400px;
+    float: left;
+    padding-left: 15px;
+    padding-top: 20px;
+}
+
+a {
+    padding: 10px 20px;
+    background-color: #CCCCCC;
+    text-decoration: none;
+    color: #333333;
+}
+
+#game_over {
+    color: #FF3333;
+}
+
+#restartBtn {
+    padding: 10px 20px;
+    background-color: #CCCCCC;
+    text-decoration: none;
+    color: #333333;
+    font-size: 1.3em;
+    margin: 20px;
+}
+
+ul {
+    list-style: none;
 }
