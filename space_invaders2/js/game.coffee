@@ -303,9 +303,10 @@ moveAliens = (x, y) ->
 removeAlien = (alien) ->
   if alien
     index = aliensArr.indexOf(alien)
-    alien.destroy()
-    aliensArr.splice(index, 1)
-    alienMovPause -= 10
+    if (index >= 0)
+      alien.destroy()
+      aliensArr.splice(index, 1)
+      alienMovPause -= 10
 
 checkAliensGoDown = ->
   go_down = false
@@ -322,8 +323,6 @@ animateAliens = ->
     moveAliens(0, aliensDownMove)
   else
     moveAliens(aliensSideMove * aliensDirection, 0)
-
-#timerId = setInterval(animateAliens, alienMovPause)
 
 checkBulletCol = (bullet) ->
   _.each(aliensArr, (alien) ->
@@ -363,17 +362,15 @@ checkGameOver = ->
     go_right = false
     shoot = false
     createAliens()
-  else
+  else if canon
     _.each(aliensArr, (alien) ->
-      canon_x = canon.getX() if canon
-      canon_y = canon.getY() if canon
+      canon_x = canon.getX()
+      canon_y = canon.getY()
       alien_x_min = alien.getX()
       alien_y_min = alien.getY()
       alien_x_max = alien_x_min + alien.getWidth()
       alien_y_max = alien_y_min + alien.getHeight()
-      if !canon
-        game_over = false
-      else if canon_x + canon.getWidth() > alien_x_min && canon_x < alien_x_max && canon_y + canon.getHeight() > alien_y_min && canon_y < alien_y_max
+      if canon_x + canon.getWidth() > alien_x_min && canon_x < alien_x_max && canon_y + canon.getHeight() > alien_y_min && canon_y < alien_y_max
         game_over = true
       else if alien_y_max > HEIGHT
         game_over = true

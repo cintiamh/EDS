@@ -357,9 +357,11 @@
 
     if (alien) {
       index = aliensArr.indexOf(alien);
-      alien.destroy();
-      aliensArr.splice(index, 1);
-      return alienMovPause -= 10;
+      if (index >= 0) {
+        alien.destroy();
+        aliensArr.splice(index, 1);
+        return alienMovPause -= 10;
+      }
     }
   };
 
@@ -433,23 +435,17 @@
       go_right = false;
       shoot = false;
       return createAliens();
-    } else {
+    } else if (canon) {
       return _.each(aliensArr, function(alien) {
         var alien_x_max, alien_x_min, alien_y_max, alien_y_min, canon_x, canon_y;
 
-        if (canon) {
-          canon_x = canon.getX();
-        }
-        if (canon) {
-          canon_y = canon.getY();
-        }
+        canon_x = canon.getX();
+        canon_y = canon.getY();
         alien_x_min = alien.getX();
         alien_y_min = alien.getY();
         alien_x_max = alien_x_min + alien.getWidth();
         alien_y_max = alien_y_min + alien.getHeight();
-        if (!canon) {
-          return game_over = false;
-        } else if (canon_x + canon.getWidth() > alien_x_min && canon_x < alien_x_max && canon_y + canon.getHeight() > alien_y_min && canon_y < alien_y_max) {
+        if (canon_x + canon.getWidth() > alien_x_min && canon_x < alien_x_max && canon_y + canon.getHeight() > alien_y_min && canon_y < alien_y_max) {
           return game_over = true;
         } else if (alien_y_max > HEIGHT) {
           return game_over = true;

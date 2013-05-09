@@ -299,7 +299,6 @@ check_bullet_col_asteroids = (bullet) ->
       explode_rock(rock, bullet)
       points += 10
       $("#score").html("Score: " + points)
-      #document.getElementById('score').innerText = "Score " + points
   )
 
 remove_bullet = (bullet) ->
@@ -318,7 +317,6 @@ remove_rock = (rock) ->
 explode_rock = (rock, bullet) ->
   explosion.setPosition(rock.getX(), rock.getY())
   explosion.setAnimation("explosion")
-  #explosion.afterFrame(10, -> explosion.setAnimation("idle"))
   remove_bullet(bullet)
   remove_rock(rock)
 
@@ -327,7 +325,6 @@ explode_rock_ship = (rock) ->
   ship.destroy()
   game_over = true
   $("#game_over").html("GAME OVER")
-  #document.getElementById("game_over").innerText = "GAME OVER"
 
 check_ship_col_rock = ->
   if ship
